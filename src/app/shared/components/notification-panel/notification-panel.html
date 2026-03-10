@@ -1,0 +1,55 @@
+<div class="notification-panel-wrapper">
+  <button
+    type="button"
+    class="notification-bell"
+    (click)="togglePanel()"
+    [attr.aria-label]="'Notifications, ' + unreadCount() + ' unread'"
+  >
+    <i class="pi pi-bell"></i>
+    @if (unreadCount() > 0) {
+      <span class="notification-badge">{{ unreadCount() }}</span>
+    }
+  </button>
+
+  @if (showPanel()) {
+    <div class="notification-dropdown" role="region" aria-label="Notifications">
+      <div class="notification-dropdown-header">
+        <h3 class="notification-dropdown-title">Notifications</h3>
+        @if (unreadCount() > 0) {
+          <button
+            type="button"
+            class="mark-all-read-btn"
+            (click)="markAllAsRead()"
+          >
+            Mark all as read
+          </button>
+        }
+      </div>
+
+      <div class="notification-dropdown-list">
+        @for (notification of notifications(); track notification.id) {
+          <button
+            type="button"
+            class="notification-item"
+            [class.notification-unread]="!notification.read"
+            (click)="onNotificationClick(notification.id, notification.link)"
+          >
+            <div class="notification-icon" [class]="'notification-icon-' + notification.type">
+              <i [class]="getIconByType(notification.type)"></i>
+            </div>
+            <div class="notification-content">
+              <span class="notification-title">{{ notification.title }}</span>
+              <span class="notification-message">{{ notification.message }}</span>
+              <span class="notification-time">{{ notification.timestamp }}</span>
+            </div>
+          </button>
+        } @empty {
+          <div class="notification-empty">
+            <i class="pi pi-bell-slash" aria-hidden="true"></i>
+            <p>No notifications</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

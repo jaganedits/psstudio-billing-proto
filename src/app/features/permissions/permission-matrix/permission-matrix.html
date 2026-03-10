@@ -1,0 +1,72 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-shield"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Permissions</h1>
+      <p class="page-subtitle">Manage role-based access for each module</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button
+      label="Reset to Defaults"
+      icon="pi pi-refresh"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="confirmReset()"
+    />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button
+      type="button"
+      class="tab-item"
+      [class.active]="activeRole() === tab.value"
+      (click)="setRole(tab.value)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</div>
+
+<div class="page-content">
+  <div class="permission-matrix-table">
+    <table class="permission-table" role="grid" aria-label="Permission matrix">
+      <thead>
+        <tr>
+          <th scope="col" class="module-col">Module</th>
+          @for (action of actions; track action) {
+            <th scope="col" class="action-col">{{ action | titlecase }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (perm of activePermissions(); track perm.module; let i = $index) {
+          <tr>
+            <td class="module-col">
+              <span class="module-name">{{ perm.module }}</span>
+            </td>
+            @for (action of actions; track action) {
+              <td class="action-col">
+                <p-checkbox
+                  [binary]="true"
+                  [ngModel]="perm.actions[action]"
+                  (ngModelChange)="onPermissionChange(perm.module, action, $event)"
+                  [disabled]="isDisabled()"
+                  [inputId]="perm.module + '-' + action"
+                  [attr.aria-label]="action + ' permission for ' + perm.module"
+                />
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p-confirmDialog />

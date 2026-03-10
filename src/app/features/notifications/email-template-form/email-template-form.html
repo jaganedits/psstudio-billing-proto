@@ -1,0 +1,58 @@
+<p-dialog
+  [header]="isEditing() ? 'Edit Template' : 'Add Template'"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '600px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label for="templateName" class="field-label">TEMPLATE NAME *</label>
+      <input pInputText id="templateName" formControlName="name" placeholder="Enter template name" class="w-full" />
+      @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="form-error">Name is required</small>
+      }
+    </div>
+    <div class="form-field">
+      <label for="templateSubject" class="field-label">SUBJECT *</label>
+      <input pInputText id="templateSubject" formControlName="subject" placeholder="Enter email subject" class="w-full" />
+      @if (form.get('subject')?.touched && form.get('subject')?.hasError('required')) {
+        <small class="form-error">Subject is required</small>
+      }
+    </div>
+    <div class="form-field">
+      <label for="templateBody" class="field-label">BODY *</label>
+      <textarea
+        pTextarea
+        id="templateBody"
+        formControlName="body"
+        placeholder="Enter email body (HTML supported, use curly brace variables)"
+        class="w-full"
+        rows="8"
+      ></textarea>
+      @if (form.get('body')?.touched && form.get('body')?.hasError('required')) {
+        <small class="form-error">Body is required</small>
+      }
+    </div>
+    @if (templateVariables().length > 0) {
+      <div class="form-field">
+        <label class="field-label">VARIABLES</label>
+        <div class="template-variables">
+          @for (variable of templateVariables(); track variable) {
+            <span class="service-tag">{{ variable }}</span>
+          }
+        </div>
+      </div>
+    }
+    <div class="form-field">
+      <label for="templateStatus" class="field-label">ACTIVE</label>
+      <p-toggleswitch formControlName="isActive" inputId="templateStatus" />
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button [label]="isEditing() ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

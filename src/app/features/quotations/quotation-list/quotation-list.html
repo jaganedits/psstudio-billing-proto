@@ -1,0 +1,118 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-file-edit"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Quotations</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Quotations</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-file-excel" [outlined]="true" severity="success" [rounded]="true" pTooltip="Export Excel" tooltipPosition="bottom" />
+    <p-button icon="pi pi-file-pdf" [outlined]="true" severity="danger" [rounded]="true" pTooltip="Export PDF" tooltipPosition="bottom" />
+    <p-button label="+ New Quotation" (onClick)="openAddForm()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search & Filters Row -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search by quotation number, customer, phone..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+  <div class="toolbar-right">
+    <p-button icon="pi pi-filter" label="Filters" [outlined]="true" severity="secondary" />
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredQuotations()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['quotationNumber', 'customer', 'phone', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="quotationNumber">Quotation <p-sortIcon field="quotationNumber" /></th>
+      <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+      <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
+      <th pSortableColumn="validUntil">Valid Until <p-sortIcon field="validUntil" /></th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-quotation>
+    <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(quotation.customer)">
+            {{ getInitials(quotation.customer) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ quotation.quotationNumber }}</span>
+            <span class="client-id">{{ quotation.customer }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="text-muted">{{ quotation.date }}</td>
+      <td class="text-muted">&#8377;{{ quotation.total | number }}</td>
+      <td class="text-muted">{{ quotation.validUntil }}</td>
+      <td>
+        <p-tag [value]="quotation.status" [severity]="getStatusSeverity(quotation.status)" />
+      </td>
+      <td>
+        <button
+          class="action-btn"
+          type="button"
+          (click)="showActionMenu($event, quotation)"
+          [attr.aria-label]="'Actions for quotation ' + quotation.quotationNumber"
+        >
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="empty-message">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-file-edit"></i>
+        </div>
+        <p class="empty-title">No quotations found</p>
+        <p class="empty-desc">Try adjusting your search or filters to find what you're looking for.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Confirm Dialog -->
+<p-confirmdialog />

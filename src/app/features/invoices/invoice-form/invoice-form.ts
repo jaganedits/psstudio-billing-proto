@@ -22,6 +22,8 @@ import { Invoice } from '../../../shared/models/invoice.model';
 import { InvoiceService } from '../../../shared/services/invoice.service';
 import { ServiceService } from '../../../shared/services/service.service';
 import { CustomerService } from '../../../shared/services/customer.service';
+import { FrameService } from '../../../shared/services/frame.service';
+import { AlbumService } from '../../../shared/services/album.service';
 import { ServiceItem } from '../../../shared/models/service.model';
 import { Customer } from '../../../shared/models/customer.model';
 
@@ -47,30 +49,60 @@ export class InvoiceForm {
   private readonly invoiceService = inject(InvoiceService);
   private readonly serviceService = inject(ServiceService);
   private readonly customerService = inject(CustomerService);
+  private readonly frameService = inject(FrameService);
+  private readonly albumService = inject(AlbumService);
 
   readonly isEditing = signal(false);
   private editingInvoice: Invoice | null = null;
 
   readonly searchQuery = signal('');
   readonly activeCategory = signal('All');
+  readonly activeBorderFilter = signal('All');
+  readonly editingPriceIndex = signal(-1);
   readonly customerSuggestions = signal<Customer[]>([]);
 
-  readonly allServices = computed(() =>
-    this.serviceService.services().filter(s => s.status === 'Active')
-  );
+  readonly allServices = computed(() => {
+    const services = this.serviceService.services().filter(s => s.status === 'Active');
+    const frames = this.frameService.frames().filter(f => f.status === 'Active').map(f => ({
+      id: f.id + 10000,
+      name: `(${f.size}) ${f.name}`,
+      category: 'Frames',
+      price: f.price,
+      unit: 'per piece',
+      tax: 0,
+      description: f.material,
+      status: 'Active' as const,
+      border: f.border,
+    }));
+    const albums = this.albumService.albums().filter(a => a.status === 'Active').map(a => ({
+      id: a.id + 20000,
+      name: `(${a.size}) ${a.name}`,
+      category: 'Albums',
+      price: a.basePrice,
+      unit: `${a.basePages} pages`,
+      tax: 0,
+      description: `${a.albumType} - ${a.coverType}`,
+      status: 'Active' as const,
+    }));
+    return [...services, ...frames, ...albums];
+  });
 
   readonly categories = computed(() => {
     const cats = new Set(this.allServices().map(s => s.category));
     return ['All', ...cats];
   });
 
+  readonly borderOptions = ['All', '½ inch', '1 inch', '2 inch', '3 inch'];
+
   readonly filteredServices = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const cat = this.activeCategory();
+    const border = this.activeBorderFilter();
     return this.allServices().filter(s => {
       const matchCat = cat === 'All' || s.category === cat;
       const matchQuery = !query || s.name.toLowerCase().includes(query) || s.category.toLowerCase().includes(query);
-      return matchCat && matchQuery;
+      const matchBorder = cat !== 'Frames' || border === 'All' || ('border' in s && s.border === border);
+      return matchCat && matchQuery && matchBorder;
     });
   });
 
@@ -195,6 +227,11 @@ export class InvoiceForm {
 
   getBalance(): number {
     return this.getTotal() - (this.form.get('amountPaid')?.value || 0);
+  }
+
+  setCategory(cat: string): void {
+    this.activeCategory.set(cat);
+    this.activeBorderFilter.set('All');
   }
 
   onSearchInput(event: Event): void {

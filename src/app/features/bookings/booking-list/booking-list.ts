@@ -140,7 +140,7 @@ export class BookingList {
       {
         label: 'View',
         icon: 'pi pi-eye',
-        command: () => this.openEditForm(booking),
+        command: () => this.router.navigate(['/bookings', booking.id]),
       },
       {
         label: 'Edit',

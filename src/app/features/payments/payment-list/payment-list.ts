@@ -147,7 +147,7 @@ export class PaymentList {
       {
         label: 'View Invoice',
         icon: 'pi pi-eye',
-        command: () => this.router.navigate(['/invoices/edit', payment.invoiceId]),
+        command: () => this.router.navigate(['/invoices', payment.invoiceId]),
       },
     ]);
     this.actionMenu()?.toggle(event);

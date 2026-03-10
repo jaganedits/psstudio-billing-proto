@@ -1,0 +1,47 @@
+<div class="global-search-wrapper">
+  <div class="global-search-input">
+    <i class="pi pi-search" aria-hidden="true"></i>
+    <input
+      pInputText
+      type="text"
+      placeholder="Search for clients, invoices and more"
+      [value]="searchQuery()"
+      (input)="onSearchInput($event)"
+      aria-label="Global search"
+    />
+    <kbd class="search-shortcut">Ctrl+K</kbd>
+  </div>
+
+  @if (showResults() && results().length > 0) {
+    <div class="global-search-results" role="listbox" aria-label="Search results">
+      @for (group of results(); track group.category) {
+        <div class="search-group">
+          <div class="search-group-title">{{ group.category }}</div>
+          @for (item of group.results; track item.label + item.sublabel) {
+            <button
+              type="button"
+              class="search-result-item"
+              role="option"
+              (click)="navigateTo(item.route)"
+            >
+              <i [class]="item.icon" aria-hidden="true"></i>
+              <div class="search-result-text">
+                <span class="search-result-label">{{ item.label }}</span>
+                <span class="search-result-sublabel">{{ item.sublabel }}</span>
+              </div>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (showResults() && results().length === 0 && searchQuery().length >= 2) {
+    <div class="global-search-results">
+      <div class="search-empty">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <p>No results found for "{{ searchQuery() }}"</p>
+      </div>
+    </div>
+  }
+</div>

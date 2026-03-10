@@ -6,7 +6,7 @@ import { SelectModule } from 'primeng/select';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TextareaModule } from 'primeng/textarea';
 
-type SettingsTab = 'studio' | 'invoice' | 'tax';
+type SettingsTab = 'studio' | 'invoice' | 'tax' | 'smtp' | 'notifications';
 
 @Component({
   selector: 'app-settings',
@@ -32,6 +32,8 @@ export class Settings {
     { key: 'studio', label: 'Studio Profile', icon: 'pi pi-building' },
     { key: 'invoice', label: 'Invoice Settings', icon: 'pi pi-file-check' },
     { key: 'tax', label: 'Tax Settings', icon: 'pi pi-percentage' },
+    { key: 'smtp', label: 'SMTP Configuration', icon: 'pi pi-envelope' },
+    { key: 'notifications', label: 'Notification Preferences', icon: 'pi pi-bell' },
   ];
 
   readonly paymentModeOptions = [
@@ -72,6 +74,30 @@ export class Settings {
     enableGst: [true],
   });
 
+  readonly encryptionOptions = [
+    { label: 'SSL', value: 'SSL' },
+    { label: 'TLS', value: 'TLS' },
+    { label: 'None', value: 'None' },
+  ];
+
+  readonly smtpForm = this.fb.nonNullable.group({
+    smtpHost: ['', [Validators.required]],
+    smtpPort: [587, [Validators.required]],
+    smtpUsername: ['', [Validators.required]],
+    smtpPassword: ['', [Validators.required]],
+    fromEmail: ['', [Validators.required, Validators.email]],
+    fromName: ['PS Studio'],
+    encryption: ['TLS' as string],
+  });
+
+  readonly notificationsForm = this.fb.nonNullable.group({
+    emailOnNewBooking: [true],
+    emailOnPayment: [true],
+    emailOnInvoice: [true],
+    emailOnDelivery: [false],
+    smsEnabled: [false],
+  });
+
   setTab(tab: SettingsTab): void {
     this.activeTab.set(tab);
     this.saveSuccess.set(false);
@@ -85,6 +111,12 @@ export class Settings {
     } else if (tab === 'invoice') {
       this.invoiceForm.markAllAsTouched();
       if (this.invoiceForm.invalid) return;
+    } else if (tab === 'smtp') {
+      this.smtpForm.markAllAsTouched();
+      if (this.smtpForm.invalid) return;
+    } else if (tab === 'notifications') {
+      this.notificationsForm.markAllAsTouched();
+      if (this.notificationsForm.invalid) return;
     } else {
       this.taxForm.markAllAsTouched();
       if (this.taxForm.invalid) return;

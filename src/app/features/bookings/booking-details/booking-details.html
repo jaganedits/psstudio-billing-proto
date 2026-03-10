@@ -1,0 +1,173 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <button type="button" class="back-btn" (click)="goBack()" aria-label="Go back to bookings">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div class="page-header-text">
+      <h1 class="page-title">Booking Details</h1>
+      <p class="page-subtitle"><a routerLink="/bookings" class="breadcrumb-link">Bookings</a> / Details</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-pencil" label="Edit" (onClick)="editBooking()" styleClass="add-btn" />
+  </div>
+</div>
+
+@if (notFound()) {
+  <div class="empty-message">
+    <div class="empty-icon-wrap">
+      <i class="pi pi-calendar"></i>
+    </div>
+    <p class="empty-title">Booking not found</p>
+    <p class="empty-desc">The booking you're looking for doesn't exist or has been deleted.</p>
+    <p-button label="Back to Bookings" icon="pi pi-arrow-left" (onClick)="goBack()" styleClass="add-btn" />
+  </div>
+}
+
+@if (booking(); as b) {
+  <!-- Booking Info Card -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">{{ b.eventType }}</h3>
+        <p class="form-section-desc">{{ b.customer }}</p>
+      </div>
+      <div class="form-section-tag">
+        <p-tag [value]="b.status" [severity]="getStatusSeverity(b.status)" />
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">EVENT DATE</label>
+          <p class="text-muted">{{ b.eventDate }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">LOCATION</label>
+          <p class="text-muted">{{ b.location || '-' }}</p>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">PHOTOGRAPHER</label>
+          <p class="text-muted">{{ b.photographer || '-' }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">PACKAGE</label>
+          <p class="text-muted">{{ b.package || '-' }}</p>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">TOTAL AMOUNT</label>
+          <p class="text-muted">&#8377;{{ b.totalAmount | number }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">ADVANCE PAID</label>
+          <p class="text-muted">&#8377;{{ b.advancePaid | number }}</p>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">BALANCE</label>
+          <p [class]="b.balance > 0 ? 'balance-pending' : 'text-muted'">&#8377;{{ b.balance | number }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">DELIVERY DATE</label>
+          <p class="text-muted">{{ b.deliveryDate || '-' }}</p>
+        </div>
+      </div>
+      @if (b.notes) {
+        <div class="form-field">
+          <label class="field-label">NOTES</label>
+          <p class="text-muted">{{ b.notes }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Status Timeline -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Status Timeline</h3>
+        <p class="form-section-desc">Booking progression</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      @if (b.status === 'Cancelled') {
+        <div class="booking-timeline">
+          <div class="timeline-step cancelled">
+            <div class="timeline-dot"></div>
+            <div class="timeline-label">Cancelled</div>
+          </div>
+        </div>
+      } @else {
+        <div class="booking-timeline">
+          @for (step of statusSteps; track step; let i = $index) {
+            <div class="timeline-step" [class.completed]="isStepCompleted(i)" [class.active]="isStepActive(i)">
+              <div class="timeline-dot">
+                @if (isStepCompleted(i)) {
+                  <i class="pi pi-check"></i>
+                }
+              </div>
+              @if (i < statusSteps.length - 1) {
+                <div class="timeline-connector" [class.completed]="isStepCompleted(i)"></div>
+              }
+              <div class="timeline-label">{{ step }}</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Related Invoices -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-file-check"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Related Invoices</h3>
+        <p class="form-section-desc">Invoices for {{ b.customer }}</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      @if (relatedInvoices().length === 0) {
+        <p class="text-muted">No invoices found for this customer.</p>
+      } @else {
+        <table class="invoice-items-table">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Paid</th>
+              <th>Balance</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inv of relatedInvoices(); track inv.id) {
+              <tr>
+                <td><a [routerLink]="['/invoices', inv.id]" class="breadcrumb-link">{{ inv.invoiceNumber }}</a></td>
+                <td>{{ inv.date }}</td>
+                <td>&#8377;{{ inv.total | number }}</td>
+                <td>&#8377;{{ inv.paid | number }}</td>
+                <td>&#8377;{{ inv.balance | number }}</td>
+                <td><p-tag [value]="inv.status" [severity]="getInvoiceStatusSeverity(inv.status)" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+}

@@ -9,3 +9,14 @@ export interface User {
   addDate: string;
   lastLogin: string;
 }
+
+export interface LoginActivity {
+  id: number;
+  userId: number;
+  loginTime: string;
+  logoutTime: string;
+  ipAddress: string;
+  device: string;
+  status: 'Success' | 'Failed';
+  failureReason: string;
+}

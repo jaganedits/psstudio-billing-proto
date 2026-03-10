@@ -197,4 +197,125 @@
       </div>
     </form>
   }
+
+  <!-- SMTP Configuration -->
+  @case ('smtp') {
+    <form [formGroup]="smtpForm" class="form-page">
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="form-section-icon">
+            <i class="pi pi-envelope"></i>
+          </div>
+          <div>
+            <h3 class="form-section-title">SMTP Configuration</h3>
+            <p class="form-section-desc">Configure outgoing email settings</p>
+          </div>
+        </div>
+        <div class="form-section-body">
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="smtpHost" class="field-label">SMTP HOST *</label>
+              <input pInputText id="smtpHost" formControlName="smtpHost" placeholder="e.g. smtp.gmail.com" class="w-full" />
+              @if (smtpForm.get('smtpHost')?.touched && smtpForm.get('smtpHost')?.hasError('required')) {
+                <small class="form-error">SMTP host is required</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="smtpPort" class="field-label">SMTP PORT *</label>
+              <input pInputText id="smtpPort" formControlName="smtpPort" type="number" placeholder="e.g. 587" class="w-full" />
+              @if (smtpForm.get('smtpPort')?.touched && smtpForm.get('smtpPort')?.hasError('required')) {
+                <small class="form-error">SMTP port is required</small>
+              }
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="smtpUsername" class="field-label">USERNAME *</label>
+              <input pInputText id="smtpUsername" formControlName="smtpUsername" placeholder="Enter SMTP username" class="w-full" />
+              @if (smtpForm.get('smtpUsername')?.touched && smtpForm.get('smtpUsername')?.hasError('required')) {
+                <small class="form-error">Username is required</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="smtpPassword" class="field-label">PASSWORD *</label>
+              <input pInputText id="smtpPassword" formControlName="smtpPassword" type="password" placeholder="Enter SMTP password" class="w-full" />
+              @if (smtpForm.get('smtpPassword')?.touched && smtpForm.get('smtpPassword')?.hasError('required')) {
+                <small class="form-error">Password is required</small>
+              }
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="fromEmail" class="field-label">FROM EMAIL *</label>
+              <input pInputText id="fromEmail" formControlName="fromEmail" type="email" placeholder="e.g. noreply@psstudio.in" class="w-full" />
+              @if (smtpForm.get('fromEmail')?.touched && smtpForm.get('fromEmail')?.hasError('required')) {
+                <small class="form-error">From email is required</small>
+              }
+              @if (smtpForm.get('fromEmail')?.touched && smtpForm.get('fromEmail')?.hasError('email')) {
+                <small class="form-error">Enter a valid email address</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="fromName" class="field-label">FROM NAME</label>
+              <input pInputText id="fromName" formControlName="fromName" placeholder="e.g. PS Studio" class="w-full" />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="encryption" class="field-label">ENCRYPTION</label>
+              <p-select
+                id="encryption"
+                formControlName="encryption"
+                [options]="encryptionOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select encryption"
+                styleClass="w-full"
+              />
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+
+  <!-- Notification Preferences -->
+  @case ('notifications') {
+    <form [formGroup]="notificationsForm" class="form-page">
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="form-section-icon">
+            <i class="pi pi-bell"></i>
+          </div>
+          <div>
+            <h3 class="form-section-title">Notification Preferences</h3>
+            <p class="form-section-desc">Choose which notifications to send</p>
+          </div>
+        </div>
+        <div class="form-section-body">
+          <div class="form-field">
+            <label for="emailOnNewBooking" class="field-label">EMAIL ON NEW BOOKING</label>
+            <p-toggleswitch inputId="emailOnNewBooking" formControlName="emailOnNewBooking" />
+          </div>
+          <div class="form-field">
+            <label for="emailOnPayment" class="field-label">EMAIL ON PAYMENT RECEIVED</label>
+            <p-toggleswitch inputId="emailOnPayment" formControlName="emailOnPayment" />
+          </div>
+          <div class="form-field">
+            <label for="emailOnInvoice" class="field-label">EMAIL ON INVOICE GENERATED</label>
+            <p-toggleswitch inputId="emailOnInvoice" formControlName="emailOnInvoice" />
+          </div>
+          <div class="form-field">
+            <label for="emailOnDelivery" class="field-label">EMAIL ON DELIVERY STATUS CHANGE</label>
+            <p-toggleswitch inputId="emailOnDelivery" formControlName="emailOnDelivery" />
+          </div>
+          <div class="form-field">
+            <label for="smsEnabled" class="field-label">ENABLE SMS NOTIFICATIONS</label>
+            <p-toggleswitch inputId="smsEnabled" formControlName="smsEnabled" />
+          </div>
+        </div>
+      </div>
+    </form>
+  }
 }

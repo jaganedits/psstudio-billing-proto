@@ -1,0 +1,160 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-cloud-upload"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Backup & Restore</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Backup & Restore</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button label="Create Backup Now" icon="pi pi-cloud-upload" (onClick)="createBackup()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Top Row: Settings + Import/Export side by side -->
+<div class="backup-top-row">
+  <!-- Auto Backup Settings Card -->
+  <div class="backup-card">
+    <h3 class="backup-card-title">Auto Backup Settings</h3>
+    <div class="backup-settings-grid">
+      <div class="form-field">
+        <label for="autoBackupToggle" class="field-label">ENABLE AUTO BACKUP</label>
+        <p-toggleswitch
+          [ngModel]="autoBackupSettings().enabled"
+          (ngModelChange)="updateAutoBackupEnabled($event)"
+          inputId="autoBackupToggle"
+        />
+      </div>
+      <div class="form-field">
+        <label for="backupFrequency" class="field-label">FREQUENCY</label>
+        <p-select
+          [options]="frequencyOptions"
+          [ngModel]="autoBackupSettings().frequency"
+          (ngModelChange)="updateAutoBackupFrequency($event)"
+          inputId="backupFrequency"
+          placeholder="Select frequency"
+          styleClass="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="backupTime" class="field-label">TIME</label>
+        <input
+          pInputText
+          id="backupTime"
+          type="time"
+          [value]="autoBackupSettings().time"
+          (change)="updateAutoBackupTime($event)"
+          class="w-full"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Import/Export Card -->
+  <div class="backup-card">
+    <h3 class="backup-card-title">Import / Export</h3>
+    <p class="backup-card-desc">Export your data as a backup file or import data from a previous backup.</p>
+    <div class="backup-actions">
+      <p-button label="Export Data" icon="pi pi-download" [outlined]="true" severity="success" />
+      <p-button label="Import Data" icon="pi pi-upload" [outlined]="true" severity="info" />
+    </div>
+  </div>
+</div>
+
+<!-- Backup History Table -->
+<div class="backup-card">
+  <h3 class="backup-card-title">Backup History</h3>
+  <p-table
+    [value]="backups()"
+    [paginator]="true"
+    paginatorDropdownAppendTo="body"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [tableStyle]="{ 'min-width': '100%' }"
+    [scrollable]="true"
+    [stripedRows]="false"
+    currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+    [showCurrentPageReport]="true"
+    class="customer-table"
+  >
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="fileName">Backup <p-sortIcon field="fileName" /></th>
+        <th pSortableColumn="size">Size <p-sortIcon field="size" /></th>
+        <th pSortableColumn="type">Type <p-sortIcon field="type" /></th>
+        <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+        <th style="width: 10rem">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-backup>
+      <tr class="table-row">
+        <td>
+          <div class="client-cell">
+            <div class="client-avatar" [style.background]="getAvatarColor(backup.fileName)">
+              {{ getInitials(backup.fileName) }}
+            </div>
+            <div class="client-info">
+              <span class="client-name">{{ backup.fileName }}</span>
+              <span class="client-id">{{ backup.date }}</span>
+            </div>
+          </div>
+        </td>
+        <td class="text-muted">{{ backup.size }}</td>
+        <td>
+          <p-tag [value]="backup.type" [severity]="getTypeSeverity(backup.type)" />
+        </td>
+        <td>
+          <p-tag [value]="backup.status" [severity]="getStatusSeverity(backup.status)" />
+        </td>
+        <td>
+          <div class="backup-row-actions">
+            <p-button
+              icon="pi pi-download"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              pTooltip="Download"
+              tooltipPosition="bottom"
+              [attr.aria-label]="'Download ' + backup.fileName"
+            />
+            <p-button
+              icon="pi pi-refresh"
+              [rounded]="true"
+              [text]="true"
+              severity="success"
+              pTooltip="Restore"
+              tooltipPosition="bottom"
+              [attr.aria-label]="'Restore ' + backup.fileName"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              pTooltip="Delete"
+              tooltipPosition="bottom"
+              (onClick)="deleteBackup(backup.id)"
+              [attr.aria-label]="'Delete ' + backup.fileName"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5" class="empty-message">
+          <div class="empty-icon-wrap">
+            <i class="pi pi-cloud-upload"></i>
+          </div>
+          <p class="empty-title">No backups found</p>
+          <p class="empty-desc">Create your first backup to get started.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

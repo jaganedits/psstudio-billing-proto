@@ -9,6 +9,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CustomerService } from '../../../shared/services/customer.service';
 import { InvoiceService } from '../../../shared/services/invoice.service';
 import { BookingService } from '../../../shared/services/booking.service';
+import { PaymentService } from '../../../shared/services/payment.service';
+import { QuotationService } from '../../../shared/services/quotation.service';
 import { Customer } from '../../../shared/models/customer.model';
 
 @Component({
@@ -24,8 +26,10 @@ export class CustomerDetails {
   private readonly customerService = inject(CustomerService);
   private readonly invoiceService = inject(InvoiceService);
   private readonly bookingService = inject(BookingService);
+  private readonly paymentService = inject(PaymentService);
+  private readonly quotationService = inject(QuotationService);
 
-  readonly activeTab = signal<'invoices' | 'bookings'>('invoices');
+  readonly activeTab = signal<'invoices' | 'bookings' | 'payments' | 'quotations'>('invoices');
   readonly customer = signal<Customer | null>(null);
 
   readonly customerInvoices = computed(() => {
@@ -43,6 +47,18 @@ export class CustomerDetails {
   readonly totalSpent = computed(() => this.customerInvoices().reduce((sum, inv) => sum + inv.total, 0));
   readonly totalPaid = computed(() => this.customerInvoices().reduce((sum, inv) => sum + inv.paid, 0));
   readonly totalBalance = computed(() => this.customerInvoices().reduce((sum, inv) => sum + inv.balance, 0));
+  readonly customerPayments = computed(() => {
+    const c = this.customer();
+    if (!c) return [];
+    return this.paymentService.payments().filter((p) => p.customer === c.name);
+  });
+
+  readonly customerQuotations = computed(() => {
+    const c = this.customer();
+    if (!c) return [];
+    return this.quotationService.quotations().filter((q) => q.customer === c.name);
+  });
+
   readonly totalBookings = computed(() => this.customerBookings().length);
 
   constructor() {
@@ -57,7 +73,7 @@ export class CustomerDetails {
     }
   }
 
-  setTab(tab: 'invoices' | 'bookings'): void {
+  setTab(tab: 'invoices' | 'bookings' | 'payments' | 'quotations'): void {
     this.activeTab.set(tab);
   }
 
@@ -78,14 +94,19 @@ export class CustomerDetails {
     switch (status) {
       case 'Paid':
       case 'Completed':
+      case 'Accepted':
+      case 'Converted':
         return 'success';
       case 'Partial':
       case 'Confirmed':
+      case 'Sent':
         return 'warn';
       case 'Unpaid':
       case 'Pending':
+      case 'Expired':
         return 'danger';
       case 'Cancelled':
+      case 'Draft':
         return 'secondary';
       default:
         return 'info';

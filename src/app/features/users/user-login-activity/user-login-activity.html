@@ -1,0 +1,65 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <p-button
+      icon="pi pi-arrow-left"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      (onClick)="goBack()"
+      pTooltip="Back to Users"
+      aria-label="Back to Users"
+    />
+    <div class="page-icon">
+      <i class="pi pi-sign-in"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Login Activity</h1>
+      <p class="page-subtitle">{{ userName() }}'s login history</p>
+    </div>
+  </div>
+</div>
+
+<div class="page-content">
+  @if (loginActivity().length === 0) {
+    <div class="empty-message">
+      <div class="empty-icon-wrap">
+        <i class="pi pi-sign-in"></i>
+      </div>
+      <p>No login activity found for this user.</p>
+    </div>
+  } @else {
+    <p-table
+      [value]="loginActivity()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 25]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [tableStyle]="{ 'min-width': '60rem' }"
+    >
+      <ng-template #header>
+        <tr>
+          <th>Date / Time</th>
+          <th>IP Address</th>
+          <th>Device</th>
+          <th>Status</th>
+          <th>Failure Reason</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-activity>
+        <tr>
+          <td>{{ activity.loginTime }}</td>
+          <td>{{ activity.ipAddress }}</td>
+          <td>{{ activity.device }}</td>
+          <td>
+            <p-tag
+              [value]="activity.status"
+              [severity]="getStatusSeverity(activity.status)"
+            />
+          </td>
+          <td>{{ activity.failureReason || '—' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</div>

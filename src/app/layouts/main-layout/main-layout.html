@@ -2,17 +2,33 @@
   <!-- Top Header -->
   <header class="top-header" role="banner">
     <div class="header-left">
+      <button
+        type="button"
+        class="mobile-menu-btn"
+        (click)="toggleMobileSidebar()"
+        aria-label="Toggle menu"
+      >
+        <i class="pi pi-bars"></i>
+      </button>
       <div class="brand">
         <img src="logo.jpg" alt="PS Creative logo" class="brand-logo" />
         <span class="brand-name">PS CREATIVE</span>
       </div>
-      <div class="header-search">
-        <i class="pi pi-search" aria-hidden="true"></i>
-        <input type="text" placeholder="Search for clients, invoices and more" aria-label="Search" />
-        <kbd class="search-shortcut">Ctrl+K</kbd>
-      </div>
     </div>
     <div class="header-right">
+      <button
+        type="button"
+        class="quick-bill-btn"
+        (click)="navigateToNewInvoice()"
+        pTooltip="Create Invoice"
+        tooltipPosition="bottom"
+        aria-label="Create new invoice"
+      >
+        <i class="pi pi-plus"></i>
+        <span class="quick-bill-label">Quick Bill</span>
+      </button>
+      <div class="header-divider" aria-hidden="true"></div>
+      <app-notification-panel />
       <button
         type="button"
         class="theme-toggle"
@@ -23,6 +39,7 @@
       >
         <i [class]="isDark() ? 'pi pi-sun' : 'pi pi-moon'"></i>
       </button>
+      <div class="header-divider" aria-hidden="true"></div>
       <div class="header-user" (click)="toggleUserMenu($event)">
         <div class="header-user-avatar" aria-hidden="true">PS</div>
         <div class="header-user-info">
@@ -34,11 +51,20 @@
     </div>
   </header>
 
+  <!-- Mobile sidebar overlay -->
+  <div
+    class="sidebar-overlay"
+    [class.sidebar-overlay-visible]="mobileSidebarOpen()"
+    (click)="closeMobileSidebar()"
+    aria-hidden="true"
+  ></div>
+
   <div class="app-body">
     <!-- Sidebar -->
-    <aside class="sidebar" [class.sidebar-expanded]="sidebarExpanded()" role="navigation" aria-label="Main navigation">
-      <nav class="sidebar-nav">
+    <aside class="sidebar" [class.sidebar-expanded]="sidebarExpanded()" [class.sidebar-mobile-open]="mobileSidebarOpen()" role="navigation" aria-label="Main navigation">
+      <nav class="sidebar-nav" (click)="closeMobileSidebar()">
         <ul class="nav-list" role="list">
+          <!-- MAIN -->
           <li>
             <a routerLink="/dashboard" routerLinkActive="active" class="nav-icon-link"
                [pTooltip]="sidebarExpanded() ? '' : 'Dashboard'" tooltipPosition="right"
@@ -47,6 +73,17 @@
               <span class="nav-label">Dashboard</span>
             </a>
           </li>
+          <li>
+            <a routerLink="/calendar" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Calendar'" tooltipPosition="right"
+               aria-label="Calendar">
+              <i class="pi pi-calendar-clock"></i>
+              <span class="nav-label">Calendar</span>
+            </a>
+          </li>
+
+          <!-- MANAGE -->
+          <li class="nav-section-label"><span class="nav-label">MANAGE</span></li>
           <li>
             <a routerLink="/customers" routerLinkActive="active" class="nav-icon-link"
                [pTooltip]="sidebarExpanded() ? '' : 'Customers'" tooltipPosition="right"
@@ -80,11 +117,38 @@
             </a>
           </li>
           <li>
+            <a routerLink="/frames" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Frames'" tooltipPosition="right"
+               aria-label="Frames">
+              <i class="pi pi-image"></i>
+              <span class="nav-label">Frames</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/albums" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Albums'" tooltipPosition="right"
+               aria-label="Albums">
+              <i class="pi pi-book"></i>
+              <span class="nav-label">Albums</span>
+            </a>
+          </li>
+
+          <!-- BUSINESS -->
+          <li class="nav-section-label"><span class="nav-label">BUSINESS</span></li>
+          <li>
             <a routerLink="/bookings" routerLinkActive="active" class="nav-icon-link"
                [pTooltip]="sidebarExpanded() ? '' : 'Bookings'" tooltipPosition="right"
                aria-label="Bookings">
               <i class="pi pi-calendar"></i>
               <span class="nav-label">Bookings</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/quotations" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Quotations'" tooltipPosition="right"
+               aria-label="Quotations">
+              <i class="pi pi-file-edit"></i>
+              <span class="nav-label">Quotations</span>
             </a>
           </li>
           <li>
@@ -111,6 +175,28 @@
               <span class="nav-label">Deliveries</span>
             </a>
           </li>
+
+          <!-- ORDERS -->
+          <li class="nav-section-label"><span class="nav-label">ORDERS</span></li>
+          <li>
+            <a routerLink="/frame-orders" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Frame Orders'" tooltipPosition="right"
+               aria-label="Frame Orders">
+              <i class="pi pi-th-large"></i>
+              <span class="nav-label">Frame Orders</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/album-orders" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Album Orders'" tooltipPosition="right"
+               aria-label="Album Orders">
+              <i class="pi pi-bookmark"></i>
+              <span class="nav-label">Album Orders</span>
+            </a>
+          </li>
+
+          <!-- REPORTS -->
+          <li class="nav-section-label"><span class="nav-label">REPORTS</span></li>
           <li>
             <a routerLink="/expenses" routerLinkActive="active" class="nav-icon-link"
                [pTooltip]="sidebarExpanded() ? '' : 'Expenses'" tooltipPosition="right"
@@ -135,6 +221,9 @@
               <span class="nav-label">Reports</span>
             </a>
           </li>
+
+          <!-- SYSTEM -->
+          <li class="nav-section-label"><span class="nav-label">SYSTEM</span></li>
           <li>
             <a routerLink="/users" routerLinkActive="active" class="nav-icon-link"
                [pTooltip]="sidebarExpanded() ? '' : 'Users'" tooltipPosition="right"
@@ -144,11 +233,43 @@
             </a>
           </li>
           <li>
+            <a routerLink="/permissions" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Permissions'" tooltipPosition="right"
+               aria-label="Permissions">
+              <i class="pi pi-shield"></i>
+              <span class="nav-label">Permissions</span>
+            </a>
+          </li>
+          <li>
             <a routerLink="/audit" routerLinkActive="active" class="nav-icon-link"
                [pTooltip]="sidebarExpanded() ? '' : 'Audit Log'" tooltipPosition="right"
                aria-label="Audit Log">
               <i class="pi pi-history"></i>
               <span class="nav-label">Audit Log</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/email-logs" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Email Logs'" tooltipPosition="right"
+               aria-label="Email Logs">
+              <i class="pi pi-envelope"></i>
+              <span class="nav-label">Email Logs</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/email-templates" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Email Templates'" tooltipPosition="right"
+               aria-label="Email Templates">
+              <i class="pi pi-file"></i>
+              <span class="nav-label">Email Templates</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/backups" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Backups'" tooltipPosition="right"
+               aria-label="Backups">
+              <i class="pi pi-cloud-upload"></i>
+              <span class="nav-label">Backups</span>
             </a>
           </li>
         </ul>

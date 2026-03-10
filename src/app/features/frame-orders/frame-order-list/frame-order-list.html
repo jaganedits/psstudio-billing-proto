@@ -1,0 +1,128 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-th-large"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Frame Orders</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Frame Orders</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-file-excel" [outlined]="true" severity="success" [rounded]="true" pTooltip="Export Excel" tooltipPosition="bottom" />
+    <p-button icon="pi pi-file-pdf" [outlined]="true" severity="danger" [rounded]="true" pTooltip="Export PDF" tooltipPosition="bottom" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search & Filters Row -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search by invoice, customer, frame..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+  <div class="toolbar-right">
+    <p-button icon="pi pi-filter" label="Filters" [outlined]="true" severity="secondary" />
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredOrders()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['invoiceNumber', 'customer', 'frameName', 'size', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="invoiceNumber">Invoice# <p-sortIcon field="invoiceNumber" /></th>
+      <th pSortableColumn="customer">Customer <p-sortIcon field="customer" /></th>
+      <th pSortableColumn="frameName">Frame <p-sortIcon field="frameName" /></th>
+      <th>Size</th>
+      <th pSortableColumn="qty">Qty <p-sortIcon field="qty" /></th>
+      <th pSortableColumn="orderDate">Order Date <p-sortIcon field="orderDate" /></th>
+      <th pSortableColumn="expectedDate">Expected Date <p-sortIcon field="expectedDate" /></th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-order>
+    <tr class="table-row">
+      <td><span class="invoice-link">{{ order.invoiceNumber }}</span></td>
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(order.customer)">
+            {{ getInitials(order.customer) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ order.customer }}</span>
+            <span class="client-id">{{ order.phone }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="text-muted">{{ order.frameName }}</td>
+      <td class="text-muted">{{ order.size }}</td>
+      <td class="text-muted">{{ order.qty }}</td>
+      <td class="text-muted">{{ order.orderDate }}</td>
+      <td class="text-muted">{{ order.expectedDate }}</td>
+      <td>
+        <p-tag [value]="order.status" [severity]="getStatusSeverity(order.status)" />
+      </td>
+      <td>
+        <button
+          class="action-btn"
+          type="button"
+          (click)="showActionMenu($event, order)"
+          [attr.aria-label]="'Actions for ' + order.customer + ' frame order'"
+        >
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="9" class="empty-message">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-th-large"></i>
+        </div>
+        <p class="empty-title">No frame orders found</p>
+        <p class="empty-desc">Try adjusting your search or filters to find what you're looking for.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Status Dialog -->
+<app-frame-order-status-dialog
+  [visible]="showStatusDialog()"
+  [order]="selectedOrder()"
+  (save)="onStatusSave($event)"
+  (cancel)="onStatusCancel()"
+/>

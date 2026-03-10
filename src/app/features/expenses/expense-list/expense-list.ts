@@ -86,6 +86,28 @@ export class ExpenseList {
   readonly actionMenu = viewChild<Menu>('actionMenu');
   readonly menuItems = signal<MenuItem[]>([]);
 
+  private readonly avatarColors = [
+    '#4945ff', '#328048', '#d9822f', '#7b79ff', '#0c75af',
+    '#8e4fd0', '#d02b20', '#0c7547', '#ba5612', '#3d39e6',
+  ];
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  }
+
+  getAvatarColor(name: string): string {
+    let hash = 0;
+    for (const ch of name) {
+      hash = ch.charCodeAt(0) + ((hash << 5) - hash);
+    }
+    return this.avatarColors[Math.abs(hash) % this.avatarColors.length];
+  }
+
   getStatusSeverity(status: string): 'success' | 'danger' | 'warn' | 'info' {
     switch (status) {
       case 'Active':

@@ -161,7 +161,7 @@ export class InvoiceList {
       {
         label: 'View',
         icon: 'pi pi-eye',
-        command: () => this.openEditForm(invoice),
+        command: () => this.router.navigate(['/invoices', invoice.id]),
       },
       {
         label: 'Edit',

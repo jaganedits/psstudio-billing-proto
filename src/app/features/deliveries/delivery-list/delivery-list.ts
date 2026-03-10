@@ -9,7 +9,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 
 import { Invoice } from '../../../shared/models/invoice.model';
@@ -41,6 +41,7 @@ interface TabItem {
   styleUrl: './delivery-list.scss',
 })
 export class DeliveryList {
+  private readonly router = inject(Router);
   private readonly invoiceService = inject(InvoiceService);
   private readonly confirmationService = inject(ConfirmationService);
 
@@ -163,7 +164,7 @@ export class DeliveryList {
     items.push({
       label: 'View Invoice',
       icon: 'pi pi-eye',
-      command: () => {},
+      command: () => this.router.navigate(['/invoices', invoice.id]),
     });
 
     this.menuItems.set(items);

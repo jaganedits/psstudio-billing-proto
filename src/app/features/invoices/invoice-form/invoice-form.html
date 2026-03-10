@@ -85,12 +85,29 @@
               type="button"
               class="pos-cat-pill"
               [class.active]="activeCategory() === cat"
-              (click)="activeCategory.set(cat)"
+              (click)="setCategory(cat)"
             >
               {{ cat }}
             </button>
           }
         </div>
+
+        <!-- Border Size Filter (Frames only) -->
+        @if (activeCategory() === 'Frames') {
+          <div class="pos-sub-filter">
+            <span class="pos-sub-filter-label">Border:</span>
+            @for (border of borderOptions; track border) {
+              <button
+                type="button"
+                class="pos-sub-pill"
+                [class.active]="activeBorderFilter() === border"
+                (click)="activeBorderFilter.set(border)"
+              >
+                {{ border }}
+              </button>
+            }
+          </div>
+        }
 
         <!-- Service Grid -->
         <div class="pos-service-grid">
@@ -99,6 +116,9 @@
               <span class="pos-service-name">{{ service.name }}</span>
               <span class="pos-service-price">₹{{ service.price }}</span>
               <span class="pos-service-unit">{{ service.unit }}</span>
+              @if (service.description) {
+                <span class="pos-service-desc">{{ service.description }}</span>
+              }
             </button>
           }
           @if (filteredServices().length === 0) {
@@ -141,7 +161,14 @@
               <div class="pos-cart-item" [formGroupName]="$index">
                 <div class="pos-cart-item-info">
                   <input pInputText formControlName="name" placeholder="Item name" class="pos-cart-item-name" />
-                  <span class="pos-cart-item-price">₹{{ item.get('price')?.value }} each</span>
+                  @if (editingPriceIndex() === $index) {
+                    <div class="pos-cart-item-price-edit">
+                      <span>₹</span>
+                      <input pInputText formControlName="price" type="number" class="pos-cart-price-input" (blur)="editingPriceIndex.set(-1)" (keydown.enter)="editingPriceIndex.set(-1)" />
+                    </div>
+                  } @else {
+                    <span class="pos-cart-item-price" (dblclick)="editingPriceIndex.set($index)" title="Double-click to edit price">₹{{ item.get('price')?.value }} each</span>
+                  }
                 </div>
                 <div class="pos-cart-item-actions">
                   <div class="pos-qty-control">

@@ -1,0 +1,89 @@
+<p-dialog
+  [header]="isEditing() ? 'Edit Album' : 'Add Album'"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '600px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label for="albumName" class="field-label">ALBUM NAME *</label>
+      <input pInputText id="albumName" formControlName="name" placeholder="Enter album name" class="w-full" />
+      @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="form-error">Name is required</small>
+      }
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="albumType" class="field-label">ALBUM TYPE *</label>
+        <p-select id="albumType" formControlName="albumType" [options]="albumTypeOptions" placeholder="Select type" styleClass="w-full" appendTo="body" />
+        @if (form.get('albumType')?.touched && form.get('albumType')?.hasError('required')) {
+          <small class="form-error">Type is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="albumSize" class="field-label">SIZE *</label>
+        <p-select id="albumSize" formControlName="size" [options]="sizeOptions" placeholder="Select size" styleClass="w-full" appendTo="body" />
+        @if (form.get('size')?.touched && form.get('size')?.hasError('required')) {
+          <small class="form-error">Size is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="albumCover" class="field-label">COVER TYPE *</label>
+        <p-select id="albumCover" formControlName="coverType" [options]="coverTypeOptions" placeholder="Select cover" styleClass="w-full" appendTo="body" />
+        @if (form.get('coverType')?.touched && form.get('coverType')?.hasError('required')) {
+          <small class="form-error">Cover type is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="albumBasePages" class="field-label">BASE PAGES *</label>
+        <input pInputText id="albumBasePages" formControlName="basePages" type="number" placeholder="e.g. 20" class="w-full" />
+        @if (form.get('basePages')?.touched && form.get('basePages')?.hasError('required')) {
+          <small class="form-error">Base pages is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="albumBasePrice" class="field-label">BASE PRICE (₹) *</label>
+        <input pInputText id="albumBasePrice" formControlName="basePrice" type="number" placeholder="Enter base price" class="w-full" />
+        @if (form.get('basePrice')?.touched && form.get('basePrice')?.hasError('required')) {
+          <small class="form-error">Base price is required</small>
+        }
+        @if (form.get('basePrice')?.touched && form.get('basePrice')?.hasError('min')) {
+          <small class="form-error">Price must be greater than 0</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="albumExtraPrice" class="field-label">EXTRA PAGE PRICE (₹) *</label>
+        <input pInputText id="albumExtraPrice" formControlName="extraPagePrice" type="number" placeholder="Enter extra page price" class="w-full" />
+        @if (form.get('extraPagePrice')?.touched && form.get('extraPagePrice')?.hasError('required')) {
+          <small class="form-error">Extra page price is required</small>
+        }
+      </div>
+    </div>
+
+    <!-- Price Calculator -->
+    <div class="price-calculator">
+      <label class="field-label">PRICE CALCULATOR</label>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="previewPages" class="field-label">TOTAL PAGES</label>
+          <input pInputText id="previewPages" type="number" [value]="previewPages()" (input)="onPreviewPagesChange($event)" class="w-full" />
+        </div>
+        <div class="form-field">
+          <label class="field-label">ESTIMATED PRICE</label>
+          <div class="price-preview">₹{{ previewPrice() | number }}</div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button [label]="isEditing() ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

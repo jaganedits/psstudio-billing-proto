@@ -1,0 +1,40 @@
+<p-dialog
+  header="Update Frame Order Status"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '480px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label for="frameStatus" class="field-label">STATUS *</label>
+      <p-select
+        id="frameStatus"
+        formControlName="status"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select status"
+        class="w-full"
+        appendTo="body"
+      />
+      @if (form.get('status')?.touched && form.get('status')?.hasError('required')) {
+        <small class="form-error">Status is required</small>
+      }
+    </div>
+    <div class="form-field">
+      <label for="frameDeliveryDate" class="field-label">DELIVERY DATE</label>
+      <input pInputText id="frameDeliveryDate" formControlName="deliveryDate" placeholder="e.g. March 15, 2026" class="w-full" />
+    </div>
+    <div class="form-field">
+      <label for="frameNotes" class="field-label">NOTES</label>
+      <textarea pTextarea id="frameNotes" formControlName="notes" rows="3" placeholder="Add any notes..." class="w-full"></textarea>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button label="Update" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

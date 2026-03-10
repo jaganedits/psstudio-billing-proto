@@ -118,6 +118,14 @@
       Bookings
       <span class="tab-count">{{ customerBookings().length }}</span>
     </button>
+    <button type="button" class="tab-item" [class.active]="activeTab() === 'payments'" (click)="setTab('payments')">
+      Payments
+      <span class="tab-count">{{ customerPayments().length }}</span>
+    </button>
+    <button type="button" class="tab-item" [class.active]="activeTab() === 'quotations'" (click)="setTab('quotations')">
+      Quotations
+      <span class="tab-count">{{ customerQuotations().length }}</span>
+    </button>
   </div>
 
   <!-- Invoices Table -->
@@ -226,6 +234,98 @@
             </div>
             <p class="empty-title">No bookings yet</p>
             <p class="empty-desc">This customer doesn't have any bookings.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+
+  <!-- Payments Table -->
+  @if (activeTab() === 'payments') {
+    <p-table
+      [value]="customerPayments()"
+      [paginator]="customerPayments().length > 5"
+      [rows]="5"
+      [stripedRows]="false"
+      currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+      [showCurrentPageReport]="true"
+      class="customer-table"
+    >
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="invoiceNumber">Invoice <p-sortIcon field="invoiceNumber" /></th>
+          <th pSortableColumn="amount">Amount <p-sortIcon field="amount" /></th>
+          <th pSortableColumn="paymentMode">Mode <p-sortIcon field="paymentMode" /></th>
+          <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+          <th>Reference</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-payment>
+        <tr class="table-row">
+          <td><span class="client-name">{{ payment.invoiceNumber }}</span></td>
+          <td>{{ payment.amount | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td><span class="service-tag">{{ payment.paymentMode }}</span></td>
+          <td class="text-muted">{{ payment.date }}</td>
+          <td class="text-muted">{{ payment.reference || '-' }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="empty-message">
+            <div class="empty-icon-wrap">
+              <i class="pi pi-indian-rupee"></i>
+            </div>
+            <p class="empty-title">No payments yet</p>
+            <p class="empty-desc">This customer doesn't have any payments.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+
+  <!-- Quotations Table -->
+  @if (activeTab() === 'quotations') {
+    <p-table
+      [value]="customerQuotations()"
+      [paginator]="customerQuotations().length > 5"
+      [rows]="5"
+      [stripedRows]="false"
+      currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+      [showCurrentPageReport]="true"
+      class="customer-table"
+    >
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="quotationNumber">Quotation # <p-sortIcon field="quotationNumber" /></th>
+          <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+          <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
+          <th pSortableColumn="validUntil">Valid Until <p-sortIcon field="validUntil" /></th>
+          <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-q>
+        <tr class="table-row">
+          <td><span class="client-name">{{ q.quotationNumber }}</span></td>
+          <td class="text-muted">{{ q.date }}</td>
+          <td>{{ q.total | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td class="text-muted">{{ q.validUntil }}</td>
+          <td>
+            <p-tag [value]="q.status" [severity]="getStatusSeverity(q.status)" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="empty-message">
+            <div class="empty-icon-wrap">
+              <i class="pi pi-file-edit"></i>
+            </div>
+            <p class="empty-title">No quotations yet</p>
+            <p class="empty-desc">This customer doesn't have any quotations.</p>
           </td>
         </tr>
       </ng-template>

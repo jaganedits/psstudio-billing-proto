@@ -1,0 +1,108 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="pi pi-image"></i></div>
+    <div class="page-header-text">
+      <h1 class="page-title">Frames</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Frames</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button label="+ Add Frame" (onClick)="openAddForm()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search frames..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredFrames()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['name', 'size', 'border', 'material', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="name">Frame <p-sortIcon field="name" /></th>
+      <th pSortableColumn="size">Size <p-sortIcon field="size" /></th>
+      <th pSortableColumn="border">Border <p-sortIcon field="border" /></th>
+      <th pSortableColumn="price">Price <p-sortIcon field="price" /></th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-frame>
+    <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(frame.name)">
+            {{ getInitials(frame.name) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ frame.name }}</span>
+            <span class="client-id">{{ frame.material }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="text-muted">{{ frame.size }}</td>
+      <td class="text-muted">{{ frame.border }}</td>
+      <td class="text-muted">₹{{ frame.price | number }}</td>
+      <td><p-tag [value]="frame.status" [severity]="getStatusSeverity(frame.status)" /></td>
+      <td>
+        <button class="action-btn" type="button" (click)="showActionMenu($event, frame)" [attr.aria-label]="'Actions for ' + frame.name">
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="empty-message">
+        <div class="empty-icon-wrap"><i class="pi pi-image"></i></div>
+        <p class="empty-title">No frames found</p>
+        <p class="empty-desc">Try adjusting your search or filters.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Confirm Dialog -->
+<p-confirmdialog />
+
+<!-- Frame Form Dialog -->
+<app-frame-form
+  [visible]="showForm()"
+  [frame]="editingFrame()"
+  (save)="onFormSave($event)"
+  (cancel)="onFormCancel()"
+/>

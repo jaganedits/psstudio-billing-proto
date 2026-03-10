@@ -57,10 +57,9 @@
 >
   <ng-template #header>
     <tr>
+      <th pSortableColumn="description">Expense <p-sortIcon field="description" /></th>
       <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
       <th pSortableColumn="category">Category <p-sortIcon field="category" /></th>
-      <th pSortableColumn="description">Description <p-sortIcon field="description" /></th>
-      <th pSortableColumn="vendor">Vendor <p-sortIcon field="vendor" /></th>
       <th pSortableColumn="amount">Amount <p-sortIcon field="amount" /></th>
       <th pSortableColumn="paymentMode">Payment Mode</th>
       <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
@@ -70,16 +69,23 @@
 
   <ng-template #body let-expense>
     <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(expense.description)">
+            {{ getInitials(expense.description) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ expense.description }}</span>
+            <span class="client-id">{{ expense.vendor }}</span>
+          </div>
+        </div>
+      </td>
       <td class="text-muted">{{ expense.date }}</td>
       <td>
         <p-tag [value]="expense.category" [severity]="getCategorySeverity(expense.category)" />
       </td>
       <td>
-        <span class="client-name">{{ expense.description }}</span>
-      </td>
-      <td class="text-muted">{{ expense.vendor }}</td>
-      <td>
-        <span class="balance-pending">{{ expense.amount | number:'1.0-0' }}</span>
+        <span class="balance-pending">&#8377;{{ expense.amount | number:'1.0-0' }}</span>
       </td>
       <td>
         <span class="text-muted">
@@ -104,7 +110,7 @@
 
   <ng-template #emptymessage>
     <tr>
-      <td colspan="8" class="empty-message">
+      <td colspan="7" class="empty-message">
         <div class="empty-icon-wrap">
           <i class="pi pi-wallet"></i>
         </div>

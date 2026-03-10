@@ -1,0 +1,58 @@
+<p-dialog
+  [header]="isEditing() ? 'Edit Frame' : 'Add Frame'"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '540px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label for="frameName" class="field-label">FRAME NAME *</label>
+      <input pInputText id="frameName" formControlName="name" placeholder="Enter frame name" class="w-full" />
+      @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="form-error">Name is required</small>
+      }
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="frameSize" class="field-label">SIZE *</label>
+        <p-select id="frameSize" formControlName="size" [options]="sizeOptions" placeholder="Select size" styleClass="w-full" appendTo="body" />
+        @if (form.get('size')?.touched && form.get('size')?.hasError('required')) {
+          <small class="form-error">Size is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="frameBorder" class="field-label">BORDER *</label>
+        <p-select id="frameBorder" formControlName="border" [options]="borderOptions" placeholder="Select border" styleClass="w-full" appendTo="body" />
+        @if (form.get('border')?.touched && form.get('border')?.hasError('required')) {
+          <small class="form-error">Border is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="frameMaterial" class="field-label">MATERIAL *</label>
+        <p-select id="frameMaterial" formControlName="material" [options]="materialOptions" placeholder="Select material" styleClass="w-full" appendTo="body" />
+        @if (form.get('material')?.touched && form.get('material')?.hasError('required')) {
+          <small class="form-error">Material is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="framePrice" class="field-label">PRICE (₹) *</label>
+        <input pInputText id="framePrice" formControlName="price" type="number" placeholder="Enter price" class="w-full" />
+        @if (form.get('price')?.touched && form.get('price')?.hasError('required')) {
+          <small class="form-error">Price is required</small>
+        }
+        @if (form.get('price')?.touched && form.get('price')?.hasError('min')) {
+          <small class="form-error">Price must be greater than 0</small>
+        }
+      </div>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button [label]="isEditing() ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

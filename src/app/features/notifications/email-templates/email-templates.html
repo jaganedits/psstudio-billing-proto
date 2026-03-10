@@ -1,0 +1,119 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-file"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Email Templates</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Email Templates</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button label="+ Add Template" (onClick)="openAddForm()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search & Filters Row -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search by name, subject..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredTemplates()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['name', 'subject', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="name">Template <p-sortIcon field="name" /></th>
+      <th>Variables</th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-template>
+    <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(template.name)">
+            {{ getInitials(template.name) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ template.name }}</span>
+            <span class="client-id">{{ template.subject }}</span>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="orders-count">{{ template.variables.length }}</span>
+      </td>
+      <td>
+        <p-tag [value]="template.status" [severity]="getStatusSeverity(template.status)" />
+      </td>
+      <td>
+        <button
+          class="action-btn"
+          type="button"
+          (click)="showActionMenu($event, template)"
+          [attr.aria-label]="'Actions for ' + template.name"
+        >
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="4" class="empty-message">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-file"></i>
+        </div>
+        <p class="empty-title">No email templates found</p>
+        <p class="empty-desc">Try adjusting your search or filters to find what you're looking for.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Confirm Dialog -->
+<p-confirmdialog />
+
+<!-- Email Template Form Dialog -->
+<app-email-template-form
+  [visible]="showForm()"
+  [template]="editingTemplate()"
+  (save)="onFormSave($event)"
+  (cancel)="onFormCancel()"
+/>

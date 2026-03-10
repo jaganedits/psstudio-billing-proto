@@ -1,0 +1,58 @@
+<p-dialog
+  header="Update Album Order Status"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '540px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="albumDesignStatus" class="field-label">DESIGN STATUS *</label>
+        <p-select
+          id="albumDesignStatus"
+          formControlName="designStatus"
+          [options]="designStatusOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select design status"
+          class="w-full"
+          appendTo="body"
+        />
+        @if (form.get('designStatus')?.touched && form.get('designStatus')?.hasError('required')) {
+          <small class="form-error">Design status is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="albumOrderStatus" class="field-label">ORDER STATUS *</label>
+        <p-select
+          id="albumOrderStatus"
+          formControlName="orderStatus"
+          [options]="orderStatusOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select order status"
+          class="w-full"
+          appendTo="body"
+        />
+        @if (form.get('orderStatus')?.touched && form.get('orderStatus')?.hasError('required')) {
+          <small class="form-error">Order status is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-field">
+      <label for="albumDeliveryDate" class="field-label">DELIVERY DATE</label>
+      <input pInputText id="albumDeliveryDate" formControlName="deliveryDate" placeholder="e.g. March 15, 2026" class="w-full" />
+    </div>
+    <div class="form-field">
+      <label for="albumNotes" class="field-label">NOTES</label>
+      <textarea pTextarea id="albumNotes" formControlName="notes" rows="3" placeholder="Add any notes..." class="w-full"></textarea>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button label="Update" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

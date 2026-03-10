@@ -1,0 +1,112 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="pi pi-book"></i></div>
+    <div class="page-header-text">
+      <h1 class="page-title">Albums</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Albums</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button label="+ Add Album" (onClick)="openAddForm()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search albums..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredAlbums()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['name', 'albumType', 'size', 'coverType', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="name">Album <p-sortIcon field="name" /></th>
+      <th pSortableColumn="size">Size <p-sortIcon field="size" /></th>
+      <th>Cover</th>
+      <th pSortableColumn="basePages">Pages <p-sortIcon field="basePages" /></th>
+      <th pSortableColumn="basePrice">Base Price <p-sortIcon field="basePrice" /></th>
+      <th pSortableColumn="extraPagePrice">Extra Page <p-sortIcon field="extraPagePrice" /></th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-album>
+    <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(album.name)">
+            {{ getInitials(album.name) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ album.name }}</span>
+            <span class="client-id">{{ album.albumType }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="text-muted">{{ album.size }}</td>
+      <td class="text-muted">{{ album.coverType }}</td>
+      <td class="text-muted">{{ album.basePages }}</td>
+      <td class="text-muted">₹{{ album.basePrice | number }}</td>
+      <td class="text-muted">₹{{ album.extraPagePrice | number }}</td>
+      <td><p-tag [value]="album.status" [severity]="getStatusSeverity(album.status)" /></td>
+      <td>
+        <button class="action-btn" type="button" (click)="showActionMenu($event, album)" [attr.aria-label]="'Actions for ' + album.name">
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="8" class="empty-message">
+        <div class="empty-icon-wrap"><i class="pi pi-book"></i></div>
+        <p class="empty-title">No albums found</p>
+        <p class="empty-desc">Try adjusting your search or filters.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Confirm Dialog -->
+<p-confirmdialog />
+
+<!-- Album Form Dialog -->
+<app-album-form
+  [visible]="showForm()"
+  [album]="editingAlbum()"
+  (save)="onFormSave($event)"
+  (cancel)="onFormCancel()"
+/>

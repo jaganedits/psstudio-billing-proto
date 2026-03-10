@@ -1,0 +1,95 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-envelope"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Email Logs</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Email Logs</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search & Filters Row -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search by email, subject, template, status..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredLogs()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['to', 'subject', 'template', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="subject">Email <p-sortIcon field="subject" /></th>
+      <th pSortableColumn="template">Template <p-sortIcon field="template" /></th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th pSortableColumn="sentAt">Sent At <p-sortIcon field="sentAt" /></th>
+      <th>Error</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-log>
+    <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(log.to)">
+            {{ getInitials(log.to) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ log.subject }}</span>
+            <span class="client-id">{{ log.to }}</span>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="service-tag">{{ log.template }}</span>
+      </td>
+      <td>
+        <p-tag [value]="log.status" [severity]="getStatusSeverity(log.status)" />
+      </td>
+      <td class="text-muted">{{ log.sentAt }}</td>
+      <td class="text-muted">{{ log.error || '—' }}</td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5" class="empty-message">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-envelope"></i>
+        </div>
+        <p class="empty-title">No email logs found</p>
+        <p class="empty-desc">Try adjusting your search or filters to find what you're looking for.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

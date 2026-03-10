@@ -1,0 +1,87 @@
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon"><i class="pi pi-file-check"></i></div>
+    <div class="page-header-text">
+      <h1 class="page-title">Invoice {{ invoice()?.invoiceNumber }}</h1>
+      <p class="page-subtitle"><a routerLink="/invoices" class="breadcrumb-link">Invoices</a> / View</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-print" label="Print" [outlined]="true" severity="secondary" (onClick)="printInvoice()" />
+    <p-button icon="pi pi-pencil" label="Edit" (onClick)="editInvoice()" styleClass="add-btn" />
+  </div>
+</div>
+
+@if (notFound()) {
+  <div class="empty-message">
+    <div class="empty-icon-wrap">
+      <i class="pi pi-file-check"></i>
+    </div>
+    <p class="empty-title">Invoice not found</p>
+    <p class="empty-desc">The invoice you're looking for doesn't exist or has been deleted.</p>
+    <p-button label="Back to Invoices" icon="pi pi-arrow-left" (onClick)="goBack()" styleClass="add-btn" />
+  </div>
+}
+
+@if (invoice(); as inv) {
+  <div class="invoice-view">
+    <div class="invoice-header">
+      <div class="invoice-company">
+        <h2>PS CREATIVE</h2>
+        <p>Photography Studio</p>
+      </div>
+      <div class="invoice-meta">
+        <h3>INVOICE</h3>
+        <p>{{ inv.invoiceNumber }}</p>
+        <p>Date: {{ inv.date }}</p>
+      </div>
+    </div>
+
+    <div class="invoice-customer">
+      <h4>Bill To:</h4>
+      <p><strong>{{ inv.customer }}</strong></p>
+      <p>{{ inv.phone }}</p>
+    </div>
+
+    <table class="invoice-items-table">
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        @for (item of inv.items; track item.name) {
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>&#8377;{{ item.price | number }}</td>
+            <td>&#8377;{{ item.total | number }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="invoice-totals">
+      <div class="total-row"><span>Subtotal</span><span>&#8377;{{ inv.subtotal | number }}</span></div>
+      <div class="total-row"><span>Discount</span><span>- &#8377;{{ inv.discount | number }}</span></div>
+      <div class="total-row"><span>GST</span><span>&#8377;{{ inv.gst | number }}</span></div>
+      <div class="total-row total-grand"><span>Grand Total</span><span>&#8377;{{ inv.total | number }}</span></div>
+    </div>
+
+    <div class="invoice-payment">
+      <div class="total-row"><span>Payment Mode</span><span>{{ inv.paymentMode }}</span></div>
+      <div class="total-row"><span>Amount Paid</span><span>&#8377;{{ inv.paid | number }}</span></div>
+      <div class="total-row" [class.balance-due]="inv.balance > 0">
+        <span>Balance Due</span>
+        <span>&#8377;{{ inv.balance | number }}</span>
+      </div>
+    </div>
+
+    <div class="invoice-footer">
+      <p><strong>Thank you for your business!</strong></p>
+      <p class="invoice-terms">Terms: All payments are non-refundable. Photos will be delivered within 7 working days.</p>
+    </div>
+
+    <div class="invoice-status">
+      <p-tag [value]="inv.status" [severity]="getStatusSeverity(inv.status)" />
+    </div>
+  </div>
+}
