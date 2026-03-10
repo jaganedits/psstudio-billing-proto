@@ -1,0 +1,170 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <button type="button" class="back-btn" (click)="onCancel()" aria-label="Go back to packages">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div class="page-header-text">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">
+        <a routerLink="/packages" class="breadcrumb-link">Packages</a> &rsaquo; {{ pageTitle }}
+      </p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button
+      label="Cancel"
+      [outlined]="true"
+      severity="secondary"
+      (onClick)="onCancel()"
+      type="button"
+    />
+    <p-button
+      [label]="isEditing() ? 'Update Package' : 'Save Package'"
+      icon="pi pi-check"
+      (onClick)="onSubmit()"
+      styleClass="add-btn"
+    />
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-page">
+  <!-- Section 1: Package Details -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-gift"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Package Details</h3>
+        <p class="form-section-desc">Package name and description</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-field">
+        <label for="name" class="field-label">PACKAGE NAME *</label>
+        <input pInputText id="name" formControlName="name" placeholder="Enter package name" class="w-full" />
+        @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+          <small class="form-error">Name is required</small>
+        }
+        @if (form.get('name')?.touched && form.get('name')?.hasError('minlength')) {
+          <small class="form-error">Name must be at least 2 characters</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="description" class="field-label">DESCRIPTION</label>
+        <textarea pInputText id="description" formControlName="description" placeholder="Enter package description" rows="2" class="w-full"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Package Services -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-list"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Package Services</h3>
+        <p class="form-section-desc">Select services to include in this package</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="service-picker">
+        <!-- Category Filter -->
+        <div class="pos-categories">
+          @for (cat of categoryNames(); track cat) {
+            <button
+              type="button"
+              class="pos-cat-pill"
+              [class.active]="selectedCategory() === cat"
+              (click)="selectCategory(cat)"
+            >
+              {{ cat }}
+            </button>
+          }
+        </div>
+
+        <!-- Available Services -->
+        <div class="picker-header">
+          <span class="picker-label">Available Services</span>
+          <div class="pos-search">
+            <i class="pi pi-search"></i>
+            <input type="text" placeholder="Search services..." (input)="onSearchInput($event)" />
+          </div>
+        </div>
+
+        <div class="chip-list">
+          @for (service of filteredAvailableServices(); track service.id) {
+            <button type="button" class="chip-item" (click)="addServiceToPackage(service)">
+              {{ service.name }}
+              <span class="chip-price">&#8377;{{ service.price }}</span>
+            </button>
+          }
+          @if (filteredAvailableServices().length === 0) {
+            <span class="text-muted" style="font-size: 13px;">No services found</span>
+          }
+        </div>
+
+        <!-- Selected Services -->
+        @if (services.length > 0) {
+          <span class="picker-label">Selected Services ({{ services.length }})</span>
+
+          <div formArrayName="services">
+            <!-- Header -->
+            <div class="items-table-header">
+              <span class="items-col-name">Service</span>
+              <span class="items-col-price">Price</span>
+              <span class="items-col-qty">Qty</span>
+              <span class="items-col-total">Total</span>
+              <span class="items-col-action"></span>
+            </div>
+
+            @for (item of services.controls; track $index) {
+              <div class="items-table-row" [formGroupName]="$index">
+                <span class="items-col-name">{{ item.get('name')?.value }}</span>
+                <span class="items-col-price">
+                  <input type="number" formControlName="price" class="items-price-input" aria-label="Price" />
+                </span>
+                <span class="items-col-qty">
+                  <div class="pos-qty-control">
+                    <button type="button" class="pos-qty-btn" (click)="updateServiceQty($index, -1)" aria-label="Decrease quantity">&#8722;</button>
+                    <span class="pos-qty-value">{{ item.get('quantity')?.value }}</span>
+                    <button type="button" class="pos-qty-btn" (click)="updateServiceQty($index, 1)" aria-label="Increase quantity">+</button>
+                  </div>
+                </span>
+                <span class="items-col-total">&#8377;{{ getItemTotal($index) | number:'1.0-0' }}</span>
+                <span class="items-col-action">
+                  <button type="button" class="pos-remove-btn" (click)="removeServiceFromPackage($index)" aria-label="Remove service">
+                    <i class="pi pi-times"></i>
+                  </button>
+                </span>
+              </div>
+            }
+          </div>
+
+          <div class="summary-row summary-total-row">
+            <span class="summary-label">Total Value</span>
+            <span class="summary-total">&#8377;{{ getTotalValue() | number:'1.0-0' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Package Price Section -->
+  <div class="pkg-price-section">
+    <div class="form-field" style="flex: 1;">
+      <label for="packagePrice" class="field-label">PACKAGE PRICE *</label>
+      <input pInputText id="packagePrice" formControlName="packagePrice" type="number" placeholder="Enter package price" class="w-full" />
+      @if (form.get('packagePrice')?.touched && form.get('packagePrice')?.hasError('required')) {
+        <small class="form-error">Package price is required</small>
+      }
+    </div>
+    @if (services.length > 0 && getSavings() > 0) {
+      <div class="pkg-savings">
+        You save &#8377;{{ getSavings() | number:'1.0-0' }}
+      </div>
+    }
+  </div>
+</form>

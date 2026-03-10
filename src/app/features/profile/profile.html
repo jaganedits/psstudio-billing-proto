@@ -1,0 +1,165 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-header-text">
+      <h1 class="page-title">My Profile</h1>
+      <p class="page-subtitle">Manage your personal information and password</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button
+      label="Save Changes"
+      icon="pi pi-check"
+      (onClick)="onSubmit()"
+      styleClass="add-btn"
+    />
+  </div>
+</div>
+
+@if (saveSuccess()) {
+  <div class="profile-success-msg">
+    <i class="pi pi-check-circle"></i> Profile updated successfully!
+  </div>
+}
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-page">
+  <!-- Section: Profile Photo -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-image"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Profile Photo</h3>
+        <p class="form-section-desc">Your profile picture visible to other users</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="profile-upload">
+        <div class="profile-upload-preview">
+          @if (profileImagePreview()) {
+            <img [src]="profileImagePreview()" alt="Profile preview" class="profile-upload-img" />
+          } @else {
+            <div class="profile-upload-placeholder">
+              <i class="pi pi-user"></i>
+            </div>
+          }
+        </div>
+        <div class="profile-upload-actions">
+          <p-button
+            label="Upload Photo"
+            icon="pi pi-upload"
+            [outlined]="true"
+            severity="secondary"
+            (onClick)="fileInput.click()"
+            type="button"
+          />
+          @if (profileImagePreview()) {
+            <p-button
+              label="Remove"
+              icon="pi pi-trash"
+              [outlined]="true"
+              severity="danger"
+              (onClick)="removeImage()"
+              type="button"
+            />
+          }
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            (change)="onImageSelect($event)"
+            hidden
+            aria-label="Upload profile photo"
+          />
+          <p class="profile-upload-hint">JPG, PNG or GIF. Max 2MB.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Personal Info -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-user"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Personal Information</h3>
+        <p class="form-section-desc">Your name, email, and contact details</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-field">
+        <label for="profileName" class="field-label">FULL NAME *</label>
+        <input pInputText id="profileName" formControlName="name" placeholder="Enter full name" class="w-full" />
+        @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+          <small class="form-error">Name is required</small>
+        }
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="profileEmail" class="field-label">EMAIL ADDRESS *</label>
+          <input pInputText id="profileEmail" formControlName="email" type="email" placeholder="user@example.com" class="w-full" />
+          @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+            <small class="form-error">Email is required</small>
+          }
+          @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+            <small class="form-error">Enter a valid email</small>
+          }
+        </div>
+        <div class="form-field">
+          <label for="profilePhone" class="field-label">PHONE NUMBER</label>
+          <input pInputText id="profilePhone" formControlName="phone" placeholder="10-digit mobile" class="w-full" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Change Password -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-lock"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Change Password</h3>
+        <p class="form-section-desc">Leave blank to keep your current password</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="profilePassword" class="field-label">NEW PASSWORD</label>
+          <p-password
+            id="profilePassword"
+            formControlName="password"
+            [toggleMask]="true"
+            [feedback]="false"
+            placeholder="Enter new password"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (form.get('password')?.touched && form.get('password')?.hasError('minlength')) {
+            <small class="form-error">Minimum 6 characters</small>
+          }
+        </div>
+        <div class="form-field">
+          <label for="profileConfirmPassword" class="field-label">CONFIRM PASSWORD</label>
+          <p-password
+            id="profileConfirmPassword"
+            formControlName="confirmPassword"
+            [toggleMask]="true"
+            [feedback]="false"
+            placeholder="Re-enter password"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('passwordMismatch')) {
+            <small class="form-error">Passwords do not match</small>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

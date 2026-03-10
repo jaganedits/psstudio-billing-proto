@@ -1,0 +1,126 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-box"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Services</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Services</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-file-excel" [outlined]="true" severity="success" [rounded]="true" pTooltip="Export Excel" tooltipPosition="bottom" />
+    <p-button icon="pi pi-file-pdf" [outlined]="true" severity="danger" [rounded]="true" pTooltip="Export PDF" tooltipPosition="bottom" />
+    <p-button label="+ Add Service" (onClick)="openAddForm()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search & Filters Row -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search by name, category, unit..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+  <div class="toolbar-right">
+    <p-button icon="pi pi-filter" label="Filters" [outlined]="true" severity="secondary" />
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredServices()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['name', 'category', 'unit', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="name">Service <p-sortIcon field="name" /></th>
+      <th pSortableColumn="price">Price <p-sortIcon field="price" /></th>
+      <th pSortableColumn="unit">Unit <p-sortIcon field="unit" /></th>
+      <th pSortableColumn="tax">Tax % <p-sortIcon field="tax" /></th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-service>
+    <tr class="table-row">
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar" [style.background]="getAvatarColor(service.name)">
+            {{ getInitials(service.name) }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ service.name }}</span>
+            <span class="client-id">{{ service.category }}</span>
+          </div>
+        </div>
+      </td>
+      <td class="text-muted">₹{{ service.price | number:'1.0-0' }}</td>
+      <td class="text-muted">{{ service.unit }}</td>
+      <td class="text-muted">{{ service.tax }}%</td>
+      <td>
+        <p-tag [value]="service.status" [severity]="getStatusSeverity(service.status)" />
+      </td>
+      <td>
+        <button
+          class="action-btn"
+          type="button"
+          (click)="showActionMenu($event, service)"
+          [attr.aria-label]="'Actions for ' + service.name"
+        >
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="6" class="empty-message">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-box"></i>
+        </div>
+        <p class="empty-title">No services found</p>
+        <p class="empty-desc">Try adjusting your search or filters to find what you're looking for.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Confirm Dialog -->
+<p-confirmdialog />
+
+<!-- Service Form Dialog -->
+<app-service-form
+  [visible]="showForm()"
+  [service]="editingService()"
+  (save)="onFormSave($event)"
+  (cancel)="onFormCancel()"
+/>

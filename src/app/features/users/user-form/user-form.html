@@ -1,0 +1,211 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <button type="button" class="back-btn" (click)="onCancel()" aria-label="Go back to users">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div class="page-header-text">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">
+        <a routerLink="/users" class="breadcrumb-link">Users</a> &rsaquo; {{ pageTitle }}
+      </p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button
+      label="Cancel"
+      [outlined]="true"
+      severity="secondary"
+      (onClick)="onCancel()"
+      type="button"
+    />
+    <p-button
+      [label]="isEditing() ? 'Update User' : 'Save User'"
+      icon="pi pi-check"
+      (onClick)="onSubmit()"
+      styleClass="add-btn"
+    />
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-page">
+  <!-- Section: Profile Image -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-image"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Profile Photo</h3>
+        <p class="form-section-desc">Upload a profile picture for this user</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="profile-upload">
+        <div class="profile-upload-preview">
+          @if (profileImagePreview()) {
+            <img [src]="profileImagePreview()" alt="Profile preview" class="profile-upload-img" />
+          } @else {
+            <div class="profile-upload-placeholder">
+              <i class="pi pi-user"></i>
+            </div>
+          }
+        </div>
+        <div class="profile-upload-actions">
+          <p-button
+            label="Upload Photo"
+            icon="pi pi-upload"
+            [outlined]="true"
+            severity="secondary"
+            (onClick)="fileInput.click()"
+            type="button"
+          />
+          @if (profileImagePreview()) {
+            <p-button
+              label="Remove"
+              icon="pi pi-trash"
+              [outlined]="true"
+              severity="danger"
+              (onClick)="removeImage()"
+              type="button"
+            />
+          }
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            (change)="onImageSelect($event)"
+            hidden
+            aria-label="Upload profile photo"
+          />
+          <p class="profile-upload-hint">JPG, PNG or GIF. Max 2MB.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Personal Info -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-user"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Personal Information</h3>
+        <p class="form-section-desc">Name, email, and contact details</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-field">
+        <label for="userName" class="field-label">FULL NAME *</label>
+        <input pInputText id="userName" formControlName="name" placeholder="Enter full name" class="w-full" />
+        @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+          <small class="form-error">Name is required</small>
+        }
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="userEmail" class="field-label">EMAIL ADDRESS *</label>
+          <input pInputText id="userEmail" formControlName="email" type="email" placeholder="user@example.com" class="w-full" />
+          @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+            <small class="form-error">Email is required</small>
+          }
+          @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+            <small class="form-error">Enter a valid email</small>
+          }
+        </div>
+        <div class="form-field">
+          <label for="userPhone" class="field-label">PHONE NUMBER</label>
+          <input pInputText id="userPhone" formControlName="phone" placeholder="10-digit mobile" class="w-full" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Password -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-lock"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Password</h3>
+        <p class="form-section-desc">{{ isEditing() ? 'Leave blank to keep current password' : 'Set a password for this user' }}</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="userPassword" class="field-label">{{ isEditing() ? 'NEW PASSWORD' : 'PASSWORD *' }}</label>
+          <p-password
+            id="userPassword"
+            formControlName="password"
+            [toggleMask]="true"
+            [feedback]="false"
+            placeholder="{{ isEditing() ? 'Enter new password' : 'Enter password' }}"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (form.get('password')?.touched && form.get('password')?.hasError('required')) {
+            <small class="form-error">Password is required</small>
+          }
+          @if (form.get('password')?.touched && form.get('password')?.hasError('minlength')) {
+            <small class="form-error">Minimum 6 characters</small>
+          }
+        </div>
+        <div class="form-field">
+          <label for="userConfirmPassword" class="field-label">CONFIRM PASSWORD</label>
+          <p-password
+            id="userConfirmPassword"
+            formControlName="confirmPassword"
+            [toggleMask]="true"
+            [feedback]="false"
+            placeholder="Re-enter password"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          @if (form.get('confirmPassword')?.touched && form.get('confirmPassword')?.hasError('passwordMismatch')) {
+            <small class="form-error">Passwords do not match</small>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Role & Access -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-shield"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Role & Access</h3>
+        <p class="form-section-desc">Assign role and set account status</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="userRole" class="field-label">ROLE *</label>
+          <p-select
+            id="userRole"
+            formControlName="role"
+            [options]="roleOptions"
+            placeholder="Select role"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="form-field">
+          <label for="userStatus" class="field-label">STATUS</label>
+          <p-select
+            id="userStatus"
+            formControlName="status"
+            [options]="statusOptions"
+            placeholder="Select status"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

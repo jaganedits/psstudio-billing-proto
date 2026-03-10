@@ -1,0 +1,52 @@
+<p-dialog
+  [header]="isEditing() ? 'Edit Customer' : 'Add Customer'"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '540px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label for="name" class="field-label">CUSTOMER NAME *</label>
+      <input pInputText id="name" formControlName="name" placeholder="Enter customer name" class="w-full" />
+      @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="form-error">Name is required</small>
+      }
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="phone" class="field-label">MOBILE NUMBER *</label>
+        <input pInputText id="phone" formControlName="phone" placeholder="10-digit mobile" class="w-full" />
+        @if (form.get('phone')?.touched && form.get('phone')?.hasError('required')) {
+          <small class="form-error">Phone is required</small>
+        }
+        @if (form.get('phone')?.touched && form.get('phone')?.hasError('pattern')) {
+          <small class="form-error">Enter a valid 10-digit number</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="alternatePhone" class="field-label">ALTERNATE NUMBER</label>
+        <input pInputText id="alternatePhone" formControlName="alternatePhone" placeholder="Optional" class="w-full" />
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="email" class="field-label">EMAIL ADDRESS</label>
+        <input pInputText id="email" formControlName="email" type="email" placeholder="Enter email address" class="w-full" />
+        @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+          <small class="form-error">Enter a valid email</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="city" class="field-label">CITY</label>
+        <input pInputText id="city" formControlName="city" placeholder="City" class="w-full" />
+      </div>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button [label]="isEditing() ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

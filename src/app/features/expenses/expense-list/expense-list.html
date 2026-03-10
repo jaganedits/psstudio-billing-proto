@@ -1,0 +1,130 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-wallet"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Expenses</h1>
+      <p class="page-subtitle"><a routerLink="/" class="breadcrumb-link">Home</a> / Expenses</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-file-excel" [outlined]="true" severity="success" [rounded]="true" pTooltip="Export Excel" tooltipPosition="bottom" />
+    <p-button icon="pi pi-file-pdf" [outlined]="true" severity="danger" [rounded]="true" pTooltip="Export PDF" tooltipPosition="bottom" />
+    <p-button label="+ Add Expense" (onClick)="openAddForm()" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  @for (tab of tabs; track tab.value) {
+    <button type="button" class="tab-item" [class.active]="activeTab() === tab.value" (click)="setTab(tab.value)">
+      {{ tab.label }}
+      <span class="tab-count">{{ tabCounts()[tab.value] }}</span>
+    </button>
+  }
+</div>
+
+<!-- Search & Filters Row -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <p-iconfield>
+      <p-inputicon class="pi pi-search" />
+      <input pInputText type="text" placeholder="Search by description, vendor, category..." (input)="onFilter(dt, $event)" />
+    </p-iconfield>
+  </div>
+  <div class="toolbar-right">
+    <p-button icon="pi pi-filter" label="Filters" [outlined]="true" severity="secondary" />
+  </div>
+</div>
+
+<!-- Data Table -->
+<p-table
+  #dt
+  [value]="filteredExpenses()"
+  [paginator]="true"
+  paginatorDropdownAppendTo="body"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [globalFilterFields]="['date', 'category', 'description', 'vendor', 'paymentMode', 'status']"
+  [tableStyle]="{ 'min-width': '100%' }"
+  [scrollable]="true"
+  [stripedRows]="false"
+  currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+  [showCurrentPageReport]="true"
+  class="customer-table"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+      <th pSortableColumn="category">Category <p-sortIcon field="category" /></th>
+      <th pSortableColumn="description">Description <p-sortIcon field="description" /></th>
+      <th pSortableColumn="vendor">Vendor <p-sortIcon field="vendor" /></th>
+      <th pSortableColumn="amount">Amount <p-sortIcon field="amount" /></th>
+      <th pSortableColumn="paymentMode">Payment Mode</th>
+      <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+      <th style="width: 4rem">Action</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-expense>
+    <tr class="table-row">
+      <td class="text-muted">{{ expense.date }}</td>
+      <td>
+        <p-tag [value]="expense.category" [severity]="getCategorySeverity(expense.category)" />
+      </td>
+      <td>
+        <span class="client-name">{{ expense.description }}</span>
+      </td>
+      <td class="text-muted">{{ expense.vendor }}</td>
+      <td>
+        <span class="balance-pending">{{ expense.amount | number:'1.0-0' }}</span>
+      </td>
+      <td>
+        <span class="text-muted">
+          <i [class]="getPaymentModeIcon(expense.paymentMode)" style="margin-right: 6px;"></i>{{ expense.paymentMode }}
+        </span>
+      </td>
+      <td>
+        <p-tag [value]="expense.status" [severity]="getStatusSeverity(expense.status)" />
+      </td>
+      <td>
+        <button
+          class="action-btn"
+          type="button"
+          (click)="showActionMenu($event, expense)"
+          [attr.aria-label]="'Actions for ' + expense.description"
+        >
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="8" class="empty-message">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-wallet"></i>
+        </div>
+        <p class="empty-title">No expenses found</p>
+        <p class="empty-desc">Try adjusting your search or filters to find what you're looking for.</p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Action Menu -->
+<p-menu #actionMenu [model]="menuItems()" [popup]="true" appendTo="body" />
+
+<!-- Confirm Dialog -->
+<p-confirmdialog />
+
+<!-- Expense Form Dialog -->
+<app-expense-form
+  [visible]="showForm()"
+  [expense]="editingExpense()"
+  (save)="onFormSave($event)"
+  (cancel)="onFormCancel()"
+/>

@@ -1,0 +1,55 @@
+<p-dialog
+  [header]="isEditing() ? 'Edit Service' : 'Add Service'"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '560px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label class="field-label">SERVICE NAME *</label>
+      <input pInputText formControlName="name" placeholder="Enter service name" class="w-full" />
+      @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+        <small class="form-error">Name is required</small>
+      }
+      @if (form.get('name')?.touched && form.get('name')?.hasError('minlength')) {
+        <small class="form-error">Name must be at least 2 characters</small>
+      }
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label class="field-label">CATEGORY *</label>
+        <p-select formControlName="category" [options]="categories" optionLabel="label" optionValue="value" placeholder="Select category" styleClass="w-full" />
+        @if (form.get('category')?.touched && form.get('category')?.hasError('required')) {
+          <small class="form-error">Category is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label class="field-label">UNIT *</label>
+        <p-select formControlName="unit" [options]="units" optionLabel="label" optionValue="value" placeholder="Select unit" styleClass="w-full" />
+        @if (form.get('unit')?.touched && form.get('unit')?.hasError('required')) {
+          <small class="form-error">Unit is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label class="field-label">PRICE *</label>
+        <input pInputText formControlName="price" type="number" placeholder="Enter price" class="w-full" />
+        @if (form.get('price')?.touched && form.get('price')?.hasError('required')) {
+          <small class="form-error">Price is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label class="field-label">TAX %</label>
+        <input pInputText formControlName="tax" type="number" placeholder="Tax percentage" class="w-full" />
+      </div>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button [label]="isEditing() ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

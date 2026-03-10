@@ -1,0 +1,232 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-header-text">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Welcome back! Here's what's happening at PS Studio.</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button label="New Invoice" icon="pi pi-plus" routerLink="/invoices/add" styleClass="add-btn" />
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="dash-stats">
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon dash-stat-icon--revenue">
+      <i class="pi pi-indian-rupee"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="dash-stat-label">Total Revenue</span>
+      <span class="dash-stat-value">&#8377;{{ totalRevenue() | number:'1.0-0' }}</span>
+    </div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon dash-stat-icon--pending">
+      <i class="pi pi-clock"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="dash-stat-label">Pending Balance</span>
+      <span class="dash-stat-value">&#8377;{{ pendingBalance() | number:'1.0-0' }}</span>
+    </div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon dash-stat-icon--bookings">
+      <i class="pi pi-calendar"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="dash-stat-label">Active Bookings</span>
+      <span class="dash-stat-value">{{ activeBookings() }}</span>
+    </div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon dash-stat-icon--customers">
+      <i class="pi pi-users"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="dash-stat-label">Active Customers</span>
+      <span class="dash-stat-value">{{ totalCustomers() }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="dash-charts-row">
+  <!-- Revenue Chart -->
+  <div class="dash-card dash-card--wide">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Studio Performance</h3>
+      <div class="dash-chart-tabs">
+        <button
+          type="button"
+          class="dash-chart-tab"
+          [class.active]="chartPeriod() === 'weekly'"
+          (click)="setChartPeriod('weekly')"
+        >Weekly</button>
+        <button
+          type="button"
+          class="dash-chart-tab"
+          [class.active]="chartPeriod() === 'monthly'"
+          (click)="setChartPeriod('monthly')"
+        >Monthly</button>
+        <button
+          type="button"
+          class="dash-chart-tab"
+          [class.active]="chartPeriod() === 'yearly'"
+          (click)="setChartPeriod('yearly')"
+        >Yearly</button>
+      </div>
+    </div>
+    <div class="dash-chart-container">
+      <p-chart
+        [type]="revenueChartType()"
+        [data]="revenueChartData()"
+        [options]="revenueChartOptions()"
+        height="280px"
+      />
+    </div>
+  </div>
+
+  <!-- Payment Mode Chart -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Payment Modes</h3>
+    </div>
+    <div class="dash-chart-container">
+      <p-chart
+        type="doughnut"
+        [data]="paymentModeData()"
+        [options]="paymentModeOptions()"
+        height="280px"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- Top Services Chart -->
+<div class="dash-card" style="margin-bottom: 20px;">
+  <div class="dash-card-header">
+    <h3 class="dash-card-title">Top Services by Revenue</h3>
+    <a routerLink="/services" class="dash-card-link">View all services</a>
+  </div>
+  <div class="dash-chart-container">
+    <p-chart
+      type="bar"
+      [data]="topServicesData()"
+      [options]="topServicesOptions()"
+      height="300px"
+    />
+  </div>
+</div>
+
+<!-- Content Grid -->
+<div class="dash-grid">
+  <!-- Recent Invoices -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Recent Invoices</h3>
+      <a routerLink="/invoices" class="dash-card-link">View all</a>
+    </div>
+    <div class="dash-card-body">
+      @if (recentInvoices().length === 0) {
+        <div class="empty-message">
+          <i class="pi pi-file-check"></i>
+          <p>No invoices yet</p>
+        </div>
+      }
+      @for (inv of recentInvoices(); track inv.id) {
+        <div class="dash-list-item">
+          <div class="dash-list-item-left">
+            <span class="dash-list-item-title">{{ inv.customer }}</span>
+            <span class="dash-list-item-sub">{{ inv.invoiceNumber }} &middot; {{ inv.date }}</span>
+          </div>
+          <div class="dash-list-item-right">
+            <span class="dash-list-item-amount">&#8377;{{ inv.total | number:'1.0-0' }}</span>
+            <span class="status-tag" [class]="'status-tag--' + inv.status.toLowerCase()">{{ inv.status }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Upcoming Bookings -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Upcoming Bookings</h3>
+      <a routerLink="/bookings" class="dash-card-link">View all</a>
+    </div>
+    <div class="dash-card-body">
+      @if (upcomingBookings().length === 0) {
+        <div class="empty-message">
+          <i class="pi pi-calendar"></i>
+          <p>No upcoming bookings</p>
+        </div>
+      }
+      @for (booking of upcomingBookings(); track booking.id) {
+        <div class="dash-list-item">
+          <div class="dash-list-item-left">
+            <span class="dash-list-item-title">{{ booking.customer }}</span>
+            <span class="dash-list-item-sub">{{ booking.eventType }} &middot; {{ booking.eventDate }}</span>
+          </div>
+          <div class="dash-list-item-right">
+            <span class="dash-list-item-amount">&#8377;{{ booking.totalAmount | number:'1.0-0' }}</span>
+            <span class="status-tag" [class]="'status-tag--' + booking.status.toLowerCase()">{{ booking.status }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Invoice Summary -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Invoice Summary</h3>
+    </div>
+    <div class="dash-card-body">
+      <div class="dash-summary-row">
+        <span class="dash-summary-dot dash-summary-dot--paid"></span>
+        <span class="dash-summary-label">Paid</span>
+        <span class="dash-summary-count">{{ paidCount() }}</span>
+      </div>
+      <div class="dash-summary-row">
+        <span class="dash-summary-dot dash-summary-dot--partial"></span>
+        <span class="dash-summary-label">Partial</span>
+        <span class="dash-summary-count">{{ partialCount() }}</span>
+      </div>
+      <div class="dash-summary-row">
+        <span class="dash-summary-dot dash-summary-dot--unpaid"></span>
+        <span class="dash-summary-label">Unpaid</span>
+        <span class="dash-summary-count">{{ unpaidCount() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="dash-card">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Quick Actions</h3>
+    </div>
+    <div class="dash-card-body dash-actions">
+      <a routerLink="/invoices/add" class="dash-action-btn">
+        <i class="pi pi-file-check"></i>
+        <span>New Invoice</span>
+      </a>
+      <a routerLink="/bookings/add" class="dash-action-btn">
+        <i class="pi pi-calendar-plus"></i>
+        <span>New Booking</span>
+      </a>
+      <a routerLink="/customers" class="dash-action-btn">
+        <i class="pi pi-user-plus"></i>
+        <span>Add Customer</span>
+      </a>
+      <a routerLink="/packages/add" class="dash-action-btn">
+        <i class="pi pi-gift"></i>
+        <span>New Package</span>
+      </a>
+    </div>
+  </div>
+</div>

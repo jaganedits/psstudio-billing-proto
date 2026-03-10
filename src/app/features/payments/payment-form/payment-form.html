@@ -1,0 +1,125 @@
+<p-dialog
+  header="Collect Payment"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '560px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-field">
+      <label for="payInvoice" class="field-label">INVOICE *</label>
+      <p-autocomplete
+        id="payInvoice"
+        formControlName="invoice"
+        [suggestions]="filteredInvoices()"
+        (completeMethod)="searchInvoices($event)"
+        (onSelect)="onInvoiceSelect($event)"
+        (onClear)="onInvoiceClear()"
+        optionLabel="invoiceNumber"
+        placeholder="Search by invoice number or customer..."
+        [forceSelection]="true"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+      >
+        <ng-template let-invoice #item>
+          <div class="autocomplete-item">
+            <span class="client-name">{{ invoice.invoiceNumber }}</span>
+            <span class="text-muted"> - {{ invoice.customer }} (Balance: &#8377;{{ invoice.balance }})</span>
+          </div>
+        </ng-template>
+      </p-autocomplete>
+      @if (form.get('invoice')?.touched && form.get('invoice')?.hasError('required')) {
+        <small class="form-error">Invoice is required</small>
+      }
+    </div>
+
+    @if (selectedInvoice(); as inv) {
+      <div class="form-section">
+        <div class="form-section-header">
+          <i class="pi pi-info-circle form-section-icon"></i>
+          <div>
+            <div class="form-section-title">Invoice Details</div>
+            <div class="form-section-desc">{{ inv.customer }}</div>
+          </div>
+        </div>
+        <div class="form-section-body">
+          <div class="form-row-2">
+            <div class="form-field">
+              <span class="field-label">TOTAL</span>
+              <span class="dash-stat-value">&#8377;{{ inv.total }}</span>
+            </div>
+            <div class="form-field">
+              <span class="field-label">PAID SO FAR</span>
+              <span class="dash-stat-value">&#8377;{{ inv.paid }}</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <span class="field-label">REMAINING BALANCE</span>
+            <span class="dash-stat-value" style="color: var(--danger-color, #d02b20)">&#8377;{{ inv.balance }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="payAmount" class="field-label">AMOUNT *</label>
+        <input pInputText id="payAmount" formControlName="amount" type="number" placeholder="Enter amount" class="w-full" />
+        @if (form.get('amount')?.touched && form.get('amount')?.hasError('required')) {
+          <small class="form-error">Amount is required</small>
+        }
+        @if (form.get('amount')?.touched && form.get('amount')?.hasError('min')) {
+          <small class="form-error">Amount must be greater than 0</small>
+        }
+        @if ((form.get('amount')?.value ?? 0) > invoiceBalance()) {
+          <small class="form-error">Amount exceeds remaining balance</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="payMode" class="field-label">PAYMENT MODE *</label>
+        <p-select
+          id="payMode"
+          formControlName="paymentMode"
+          [options]="paymentModes"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select mode"
+          styleClass="w-full"
+        />
+        @if (form.get('paymentMode')?.touched && form.get('paymentMode')?.hasError('required')) {
+          <small class="form-error">Payment mode is required</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="payDate" class="field-label">DATE *</label>
+        <p-datepicker
+          id="payDate"
+          formControlName="date"
+          [showIcon]="true"
+          dateFormat="M dd, yy"
+          placeholder="Select date"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="payReference" class="field-label">REFERENCE</label>
+        <input pInputText id="payReference" formControlName="reference" placeholder="Transaction ref / Cheque no." class="w-full" />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="payNotes" class="field-label">NOTES</label>
+      <textarea pTextarea id="payNotes" formControlName="notes" placeholder="Optional notes" class="w-full" [rows]="3"></textarea>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button label="Collect Payment" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

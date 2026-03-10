@@ -1,0 +1,95 @@
+<p-dialog
+  [header]="isEditing() ? 'Edit Expense' : 'Add Expense'"
+  [visible]="visible()"
+  (visibleChange)="cancel.emit()"
+  [modal]="true"
+  [style]="{ width: '600px' }"
+  [closable]="true"
+  appendTo="body"
+>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="expenseDate" class="field-label">DATE *</label>
+        <p-datepicker
+          id="expenseDate"
+          formControlName="date"
+          [showIcon]="true"
+          dateFormat="dd M yy"
+          placeholder="Select date"
+          styleClass="w-full"
+          appendTo="body"
+        />
+        @if (form.get('date')?.touched && form.get('date')?.hasError('required')) {
+          <small class="form-error">Date is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="expenseCategory" class="field-label">CATEGORY *</label>
+        <p-select
+          id="expenseCategory"
+          formControlName="category"
+          [options]="categories"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select category"
+          styleClass="w-full"
+        />
+        @if (form.get('category')?.touched && form.get('category')?.hasError('required')) {
+          <small class="form-error">Category is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-field">
+      <label for="expenseDescription" class="field-label">DESCRIPTION *</label>
+      <input pInputText id="expenseDescription" formControlName="description" placeholder="Enter expense description" class="w-full" />
+      @if (form.get('description')?.touched && form.get('description')?.hasError('required')) {
+        <small class="form-error">Description is required</small>
+      }
+    </div>
+    <div class="form-row-2">
+      <div class="form-field">
+        <label for="expenseAmount" class="field-label">AMOUNT *</label>
+        <p-inputnumber
+          id="expenseAmount"
+          formControlName="amount"
+          mode="currency"
+          currency="INR"
+          locale="en-IN"
+          placeholder="Enter amount"
+          styleClass="w-full"
+        />
+        @if (form.get('amount')?.touched && form.get('amount')?.hasError('required')) {
+          <small class="form-error">Amount is required</small>
+        }
+      </div>
+      <div class="form-field">
+        <label for="expensePaymentMode" class="field-label">PAYMENT MODE *</label>
+        <p-select
+          id="expensePaymentMode"
+          formControlName="paymentMode"
+          [options]="paymentModes"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select payment mode"
+          styleClass="w-full"
+        />
+        @if (form.get('paymentMode')?.touched && form.get('paymentMode')?.hasError('required')) {
+          <small class="form-error">Payment mode is required</small>
+        }
+      </div>
+    </div>
+    <div class="form-field">
+      <label for="expenseVendor" class="field-label">VENDOR</label>
+      <input pInputText id="expenseVendor" formControlName="vendor" placeholder="Enter vendor name" class="w-full" />
+    </div>
+    <div class="form-field">
+      <label for="expenseNotes" class="field-label">NOTES</label>
+      <textarea pTextarea id="expenseNotes" formControlName="notes" placeholder="Additional notes" class="w-full" rows="3"></textarea>
+    </div>
+  </form>
+  <ng-template #footer>
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="cancel.emit()" />
+    <p-button [label]="isEditing() ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="onSubmit()" styleClass="add-btn" />
+  </ng-template>
+</p-dialog>

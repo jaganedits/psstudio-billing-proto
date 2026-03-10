@@ -1,0 +1,234 @@
+@if (customer(); as c) {
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <button type="button" class="back-btn" (click)="goBack()" aria-label="Go back to customers">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div class="page-header-text">
+        <h1 class="page-title">{{ c.name }}</h1>
+        <p class="page-subtitle">
+          <a routerLink="/customers" class="breadcrumb-link">Customers</a> &rsaquo; {{ c.name }}
+        </p>
+      </div>
+    </div>
+    <div class="page-header-right">
+      <p-button label="Edit Customer" icon="pi pi-pencil" [outlined]="true" severity="secondary" (onClick)="goBack()" />
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="dash-stats">
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(73, 69, 255, 0.1); color: #4945ff;">
+        <i class="pi pi-indian-rupee"></i>
+      </div>
+      <div class="dash-stat-info">
+        <span class="text-muted">Total Billed</span>
+        <span class="dash-stat-value">{{ totalSpent() | currency:'INR':'symbol':'1.0-0' }}</span>
+      </div>
+    </div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="dash-stat-info">
+        <span class="text-muted">Total Paid</span>
+        <span class="dash-stat-value">{{ totalPaid() | currency:'INR':'symbol':'1.0-0' }}</span>
+      </div>
+    </div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+        <i class="pi pi-exclamation-circle"></i>
+      </div>
+      <div class="dash-stat-info">
+        <span class="text-muted">Pending Balance</span>
+        <span class="dash-stat-value">{{ totalBalance() | currency:'INR':'symbol':'1.0-0' }}</span>
+      </div>
+    </div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div class="dash-stat-info">
+        <span class="text-muted">Total Bookings</span>
+        <span class="dash-stat-value">{{ totalBookings() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Info Section -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-user"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Customer Information</h3>
+        <p class="form-section-desc">Contact details and account info</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">PHONE</label>
+          <p class="text-muted">{{ c.phone || '-' }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">ALTERNATE PHONE</label>
+          <p class="text-muted">{{ c.alternatePhone || '-' }}</p>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">EMAIL</label>
+          <p class="text-muted">{{ c.email || '-' }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">CITY</label>
+          <p class="text-muted">{{ c.city || '-' }}</p>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="field-label">ADDED ON</label>
+          <p class="text-muted">{{ c.addDate }}</p>
+        </div>
+        <div class="form-field">
+          <label class="field-label">LAST VISIT</label>
+          <p class="text-muted">{{ c.lastVisit }}</p>
+        </div>
+      </div>
+      @if (c.notes) {
+        <div class="form-field">
+          <label class="field-label">NOTES</label>
+          <p class="text-muted">{{ c.notes }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button type="button" class="tab-item" [class.active]="activeTab() === 'invoices'" (click)="setTab('invoices')">
+      Invoices
+      <span class="tab-count">{{ customerInvoices().length }}</span>
+    </button>
+    <button type="button" class="tab-item" [class.active]="activeTab() === 'bookings'" (click)="setTab('bookings')">
+      Bookings
+      <span class="tab-count">{{ customerBookings().length }}</span>
+    </button>
+  </div>
+
+  <!-- Invoices Table -->
+  @if (activeTab() === 'invoices') {
+    <p-table
+      [value]="customerInvoices()"
+      [paginator]="customerInvoices().length > 5"
+      [rows]="5"
+      [stripedRows]="false"
+      currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+      [showCurrentPageReport]="true"
+      class="customer-table"
+    >
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="invoiceNumber">Invoice <p-sortIcon field="invoiceNumber" /></th>
+          <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+          <th>Items</th>
+          <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
+          <th pSortableColumn="paid">Paid <p-sortIcon field="paid" /></th>
+          <th pSortableColumn="balance">Balance <p-sortIcon field="balance" /></th>
+          <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-inv>
+        <tr class="table-row">
+          <td>
+            <span class="client-name">{{ inv.invoiceNumber }}</span>
+          </td>
+          <td class="text-muted">{{ inv.date }}</td>
+          <td class="text-muted">{{ inv.items.length }} items</td>
+          <td>{{ inv.total | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td class="text-muted">{{ inv.paid | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td [style.color]="inv.balance > 0 ? '#ef4444' : 'inherit'">
+            {{ inv.balance | currency:'INR':'symbol':'1.0-0' }}
+          </td>
+          <td>
+            <p-tag [value]="inv.status" [severity]="getStatusSeverity(inv.status)" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="empty-message">
+            <div class="empty-icon-wrap">
+              <i class="pi pi-file-check"></i>
+            </div>
+            <p class="empty-title">No invoices yet</p>
+            <p class="empty-desc">This customer doesn't have any invoices.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+
+  <!-- Bookings Table -->
+  @if (activeTab() === 'bookings') {
+    <p-table
+      [value]="customerBookings()"
+      [paginator]="customerBookings().length > 5"
+      [rows]="5"
+      [stripedRows]="false"
+      currentPageReportTemplate="Showing {first}-{last} from {totalRecords}"
+      [showCurrentPageReport]="true"
+      class="customer-table"
+    >
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="eventType">Event <p-sortIcon field="eventType" /></th>
+          <th pSortableColumn="eventDate">Date <p-sortIcon field="eventDate" /></th>
+          <th>Location</th>
+          <th pSortableColumn="package">Package <p-sortIcon field="package" /></th>
+          <th pSortableColumn="totalAmount">Amount <p-sortIcon field="totalAmount" /></th>
+          <th pSortableColumn="balance">Balance <p-sortIcon field="balance" /></th>
+          <th pSortableColumn="status">Status <p-sortIcon field="status" /></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-booking>
+        <tr class="table-row">
+          <td>
+            <span class="client-name">{{ booking.eventType }}</span>
+          </td>
+          <td class="text-muted">{{ booking.eventDate }}</td>
+          <td class="text-muted">{{ booking.location }}</td>
+          <td>
+            <span class="service-tag">{{ booking.package }}</span>
+          </td>
+          <td>{{ booking.totalAmount | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td [style.color]="booking.balance > 0 ? '#ef4444' : 'inherit'">
+            {{ booking.balance | currency:'INR':'symbol':'1.0-0' }}
+          </td>
+          <td>
+            <p-tag [value]="booking.status" [severity]="getStatusSeverity(booking.status)" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="empty-message">
+            <div class="empty-icon-wrap">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <p class="empty-title">No bookings yet</p>
+            <p class="empty-desc">This customer doesn't have any bookings.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+}

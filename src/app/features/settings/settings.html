@@ -1,0 +1,200 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-header-text">
+      <h1 class="page-title">Settings</h1>
+      <p class="page-subtitle">Manage your studio profile, invoice and tax settings</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    @if (saveSuccess()) {
+      <span class="settings-save-msg"><i class="pi pi-check-circle"></i> Settings saved successfully</span>
+    }
+    <p-button
+      label="Save Changes"
+      icon="pi pi-check"
+      (onClick)="onSave()"
+      styleClass="add-btn"
+    />
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav" aria-label="Settings sections">
+  @for (tab of tabs; track tab.key) {
+    <button
+      type="button"
+      class="tab-item"
+      [class.active]="activeTab() === tab.key"
+      (click)="setTab(tab.key)"
+      [attr.aria-current]="activeTab() === tab.key ? 'page' : null"
+    >
+      <i [class]="tab.icon" aria-hidden="true"></i>
+      {{ tab.label }}
+    </button>
+  }
+</nav>
+
+@switch (activeTab()) {
+  <!-- Studio Profile -->
+  @case ('studio') {
+    <form [formGroup]="studioForm" class="form-page">
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="form-section-icon">
+            <i class="pi pi-building"></i>
+          </div>
+          <div>
+            <h3 class="form-section-title">Studio Profile</h3>
+            <p class="form-section-desc">Your studio's basic information</p>
+          </div>
+        </div>
+        <div class="form-section-body">
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="studioName" class="field-label">STUDIO NAME *</label>
+              <input pInputText id="studioName" formControlName="studioName" placeholder="Enter studio name" class="w-full" />
+              @if (studioForm.get('studioName')?.touched && studioForm.get('studioName')?.hasError('required')) {
+                <small class="form-error">Studio name is required</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="phone" class="field-label">PHONE *</label>
+              <input pInputText id="phone" formControlName="phone" placeholder="Enter phone number" class="w-full" />
+              @if (studioForm.get('phone')?.touched && studioForm.get('phone')?.hasError('required')) {
+                <small class="form-error">Phone is required</small>
+              }
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="email" class="field-label">EMAIL *</label>
+              <input pInputText id="email" formControlName="email" placeholder="Enter email address" class="w-full" />
+              @if (studioForm.get('email')?.touched && studioForm.get('email')?.hasError('required')) {
+                <small class="form-error">Email is required</small>
+              }
+              @if (studioForm.get('email')?.touched && studioForm.get('email')?.hasError('email')) {
+                <small class="form-error">Enter a valid email address</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="city" class="field-label">CITY</label>
+              <input pInputText id="city" formControlName="city" placeholder="Enter city" class="w-full" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="address" class="field-label">ADDRESS</label>
+            <textarea pTextarea id="address" formControlName="address" placeholder="Enter studio address" rows="2" class="w-full"></textarea>
+          </div>
+          <div class="form-field">
+            <label class="field-label">STUDIO LOGO</label>
+            <div class="logo-placeholder">
+              <i class="pi pi-image"></i>
+              <span>Logo upload coming soon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+
+  <!-- Invoice Settings -->
+  @case ('invoice') {
+    <form [formGroup]="invoiceForm" class="form-page">
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="form-section-icon">
+            <i class="pi pi-file-check"></i>
+          </div>
+          <div>
+            <h3 class="form-section-title">Invoice Settings</h3>
+            <p class="form-section-desc">Configure default invoice options</p>
+          </div>
+        </div>
+        <div class="form-section-body">
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="invoicePrefix" class="field-label">INVOICE PREFIX *</label>
+              <input pInputText id="invoicePrefix" formControlName="invoicePrefix" placeholder="e.g. PS-" class="w-full" />
+              @if (invoiceForm.get('invoicePrefix')?.touched && invoiceForm.get('invoicePrefix')?.hasError('required')) {
+                <small class="form-error">Invoice prefix is required</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="defaultPaymentMode" class="field-label">DEFAULT PAYMENT MODE</label>
+              <p-select
+                id="defaultPaymentMode"
+                formControlName="defaultPaymentMode"
+                [options]="paymentModeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select payment mode"
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="defaultGstPercent" class="field-label">DEFAULT GST %</label>
+              <p-select
+                id="defaultGstPercent"
+                formControlName="defaultGstPercent"
+                [options]="gstPercentOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select GST %"
+                styleClass="w-full"
+              />
+            </div>
+            <div></div>
+          </div>
+          <div class="form-field">
+            <label for="termsAndConditions" class="field-label">TERMS & CONDITIONS</label>
+            <textarea pTextarea id="termsAndConditions" formControlName="termsAndConditions" placeholder="Enter default terms and conditions" rows="4" class="w-full"></textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+
+  <!-- Tax Settings -->
+  @case ('tax') {
+    <form [formGroup]="taxForm" class="form-page">
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="form-section-icon">
+            <i class="pi pi-percentage"></i>
+          </div>
+          <div>
+            <h3 class="form-section-title">Tax Settings</h3>
+            <p class="form-section-desc">Configure GST and tax options</p>
+          </div>
+        </div>
+        <div class="form-section-body">
+          <div class="form-field">
+            <label for="enableGst" class="field-label">ENABLE GST</label>
+            <p-toggleswitch inputId="enableGst" formControlName="enableGst" />
+          </div>
+          <div class="form-row-2">
+            <div class="form-field">
+              <label for="gstNumber" class="field-label">GST NUMBER</label>
+              <input pInputText id="gstNumber" formControlName="gstNumber" placeholder="Enter GST number" class="w-full" />
+            </div>
+            <div class="form-field">
+              <label for="gstPercent" class="field-label">GST PERCENTAGE</label>
+              <p-select
+                id="gstPercent"
+                formControlName="gstPercent"
+                [options]="gstPercentOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select GST %"
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+}

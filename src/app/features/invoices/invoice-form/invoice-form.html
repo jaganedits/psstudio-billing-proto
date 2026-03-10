@@ -1,0 +1,218 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <button type="button" class="back-btn" (click)="onCancel()" aria-label="Go back to invoices">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div class="page-header-text">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">
+        <a routerLink="/invoices" class="breadcrumb-link">Invoices</a> &rsaquo; {{ pageTitle }}
+      </p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button label="Cancel" [outlined]="true" severity="secondary" (onClick)="onCancel()" type="button" />
+    <p-button
+      [label]="isEditing() ? 'Update Invoice' : 'Save & Print'"
+      icon="pi pi-check"
+      (onClick)="onSubmit()"
+      styleClass="add-btn"
+    />
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="pos-layout">
+
+    <!-- LEFT: Service Catalog -->
+    <div class="pos-left">
+      <!-- Customer Info Bar -->
+      <div class="pos-customer-bar">
+        <div class="pos-customer-field">
+          <label for="invoiceNumber" class="field-label">INVOICE #</label>
+          <input pInputText id="invoiceNumber" formControlName="invoiceNumber" [readonly]="true" class="w-full" />
+        </div>
+        <div class="pos-customer-field">
+          <label for="date" class="field-label">DATE</label>
+          <p-datepicker
+            formControlName="date"
+            dateFormat="dd M yy"
+            placeholder="Date"
+            [showIcon]="true"
+            inputId="date"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="pos-customer-field">
+          <label for="customer" class="field-label">CUSTOMER</label>
+          <p-autocomplete
+            formControlName="customer"
+            [suggestions]="customerSuggestions()"
+            (completeMethod)="searchCustomers($event)"
+            (onSelect)="onCustomerSelect($event)"
+            field="name"
+            [forceSelection]="false"
+            placeholder="Search or enter name"
+            inputId="customer"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="pos-customer-field">
+          <label for="phone" class="field-label">PHONE</label>
+          <input pInputText id="phone" formControlName="phone" placeholder="Phone" class="w-full" />
+        </div>
+        <div class="pos-customer-field">
+          <label for="email" class="field-label">EMAIL</label>
+          <input pInputText id="email" formControlName="email" placeholder="Email" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Service Catalog -->
+      <div class="pos-catalog">
+        <div class="pos-catalog-header">
+          <h3 class="pos-catalog-title">Services</h3>
+          <div class="pos-search">
+            <i class="pi pi-search"></i>
+            <input type="text" placeholder="Search services..." (input)="onSearchInput($event)" />
+          </div>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="pos-categories">
+          @for (cat of categories(); track cat) {
+            <button
+              type="button"
+              class="pos-cat-pill"
+              [class.active]="activeCategory() === cat"
+              (click)="activeCategory.set(cat)"
+            >
+              {{ cat }}
+            </button>
+          }
+        </div>
+
+        <!-- Service Grid -->
+        <div class="pos-service-grid">
+          @for (service of filteredServices(); track service.id) {
+            <button type="button" class="pos-service-card" (click)="addServiceToCart(service)">
+              <span class="pos-service-name">{{ service.name }}</span>
+              <span class="pos-service-price">₹{{ service.price }}</span>
+              <span class="pos-service-unit">{{ service.unit }}</span>
+            </button>
+          }
+          @if (filteredServices().length === 0) {
+            <div class="pos-empty-catalog">
+              <i class="pi pi-search"></i>
+              <span>No services found</span>
+            </div>
+          }
+        </div>
+
+        <button type="button" class="add-item-btn" (click)="addCustomItem()">
+          <i class="pi pi-plus"></i> Add Custom Item
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Cart / Receipt -->
+    <div class="pos-right">
+      <div class="pos-receipt">
+        <!-- Receipt Header -->
+        <div class="pos-receipt-header">
+          <h3 class="pos-receipt-title">
+            <i class="pi pi-shopping-cart"></i> Cart
+          </h3>
+          <span class="pos-item-count">{{ items.length }} items</span>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="pos-cart-items">
+          @if (items.length === 0) {
+            <div class="pos-cart-empty">
+              <i class="pi pi-shopping-cart"></i>
+              <p>No items added</p>
+              <small>Click a service to add it</small>
+            </div>
+          }
+
+          <div formArrayName="items">
+            @for (item of items.controls; track $index) {
+              <div class="pos-cart-item" [formGroupName]="$index">
+                <div class="pos-cart-item-info">
+                  <input pInputText formControlName="name" placeholder="Item name" class="pos-cart-item-name" />
+                  <span class="pos-cart-item-price">₹{{ item.get('price')?.value }} each</span>
+                </div>
+                <div class="pos-cart-item-actions">
+                  <div class="pos-qty-control">
+                    <button type="button" class="pos-qty-btn" (click)="updateQuantity($index, -1)" aria-label="Decrease quantity">−</button>
+                    <span class="pos-qty-value">{{ item.get('quantity')?.value }}</span>
+                    <button type="button" class="pos-qty-btn" (click)="updateQuantity($index, 1)" aria-label="Increase quantity">+</button>
+                  </div>
+                  <span class="pos-cart-item-total">₹{{ getItemTotal($index) }}</span>
+                  <button type="button" class="pos-remove-btn" (click)="removeItem($index)" aria-label="Remove item">
+                    <i class="pi pi-times"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="pos-summary">
+          <div class="pos-summary-row">
+            <span>Subtotal</span>
+            <span>₹{{ getSubtotal() }}</span>
+          </div>
+          <div class="pos-summary-row pos-summary-input-row">
+            <label>Discount</label>
+            <input pInputText formControlName="discount" type="number" placeholder="0" class="pos-summary-field" />
+          </div>
+          <div class="pos-summary-row pos-summary-input-row">
+            <label>GST %</label>
+            <input pInputText formControlName="gstPercent" type="number" placeholder="18" class="pos-summary-field" />
+          </div>
+          <div class="pos-summary-row pos-summary-gst">
+            <span>GST Amount</span>
+            <span>+ ₹{{ getGstAmount() }}</span>
+          </div>
+          <div class="pos-summary-divider"></div>
+          <div class="pos-summary-row pos-summary-total">
+            <span>Total</span>
+            <span>₹{{ getTotal() }}</span>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="pos-payment">
+          <div class="pos-payment-row">
+            <div class="pos-payment-field">
+              <label class="field-label">AMOUNT PAID</label>
+              <input pInputText formControlName="amountPaid" type="number" placeholder="0" class="w-full" />
+            </div>
+            <div class="pos-payment-field">
+              <label class="field-label">PAYMENT MODE</label>
+              <p-select
+                formControlName="paymentMode"
+                [options]="paymentModes"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Mode"
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+          <div class="pos-balance-row">
+            <span>Balance</span>
+            @if (getBalance() > 0) {
+              <span class="balance-pending">₹{{ getBalance() }}</span>
+            } @else {
+              <span class="balance-clear">Fully Paid</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,181 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <button type="button" class="back-btn" (click)="onCancel()" aria-label="Go back to bookings">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div class="page-header-text">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <p class="page-subtitle">
+        <a routerLink="/bookings" class="breadcrumb-link">Bookings</a> &rsaquo; {{ pageTitle }}
+      </p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button
+      label="Cancel"
+      [outlined]="true"
+      severity="secondary"
+      (onClick)="onCancel()"
+      type="button"
+    />
+    <p-button
+      [label]="isEditing() ? 'Update Booking' : 'Save Booking'"
+      icon="pi pi-check"
+      (onClick)="onSubmit()"
+      styleClass="add-btn"
+    />
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-page">
+  <!-- Section: Event Details -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Event Details</h3>
+        <p class="form-section-desc">Customer, event type, date, time, and location</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-field">
+        <label for="customer" class="field-label">CUSTOMER NAME *</label>
+        <input pInputText id="customer" formControlName="customer" placeholder="Enter customer name" class="w-full" />
+        @if (form.get('customer')?.touched && form.get('customer')?.hasError('required')) {
+          <small class="form-error">Customer name is required</small>
+        }
+        @if (form.get('customer')?.touched && form.get('customer')?.hasError('minlength')) {
+          <small class="form-error">Name must be at least 2 characters</small>
+        }
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="eventType" class="field-label">EVENT TYPE *</label>
+          <p-select
+            id="eventType"
+            formControlName="eventType"
+            [options]="eventTypes"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select event type"
+            styleClass="w-full"
+          />
+          @if (form.get('eventType')?.touched && form.get('eventType')?.hasError('required')) {
+            <small class="form-error">Event type is required</small>
+          }
+        </div>
+        <div class="form-field">
+          <label for="eventDate" class="field-label">EVENT DATE *</label>
+          <p-datepicker
+            id="eventDate"
+            formControlName="eventDate"
+            [showIcon]="true"
+            dateFormat="dd M yy"
+            placeholder="Select event date"
+            styleClass="w-full"
+            appendTo="body"
+          />
+          @if (form.get('eventDate')?.touched && form.get('eventDate')?.hasError('required')) {
+            <small class="form-error">Event date is required</small>
+          }
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="eventTime" class="field-label">FROM TIME</label>
+          <p-datepicker
+            id="eventTime"
+            formControlName="eventTime"
+            [timeOnly]="true"
+            [showIcon]="true"
+            [hourFormat]="'12'"
+            placeholder="Start time"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+        <div class="form-field">
+          <label for="eventEndTime" class="field-label">TO TIME</label>
+          <p-datepicker
+            id="eventEndTime"
+            formControlName="eventEndTime"
+            [timeOnly]="true"
+            [showIcon]="true"
+            [hourFormat]="'12'"
+            placeholder="End time"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="location" class="field-label">LOCATION</label>
+          <input pInputText id="location" formControlName="location" placeholder="Enter event location" class="w-full" />
+        </div>
+        <div class="form-field">
+          <label for="photographer" class="field-label">PHOTOGRAPHER</label>
+          <input pInputText id="photographer" formControlName="photographer" placeholder="Enter photographer name" class="w-full" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Payment Details -->
+  <div class="form-section">
+    <div class="form-section-header">
+      <div class="form-section-icon">
+        <i class="pi pi-wallet"></i>
+      </div>
+      <div>
+        <h3 class="form-section-title">Payment Details</h3>
+        <p class="form-section-desc">Package, pricing, and delivery information</p>
+      </div>
+    </div>
+    <div class="form-section-body">
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="package" class="field-label">PACKAGE</label>
+          <p-select
+            id="package"
+            formControlName="package"
+            [options]="packageOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select package"
+            [showClear]="true"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="form-field">
+          <label for="totalAmount" class="field-label">TOTAL AMOUNT *</label>
+          <input pInputText id="totalAmount" formControlName="totalAmount" type="number" placeholder="Enter total amount" class="w-full" />
+          @if (form.get('totalAmount')?.touched && form.get('totalAmount')?.hasError('required')) {
+            <small class="form-error">Total amount is required</small>
+          }
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label for="advancePaid" class="field-label">ADVANCE PAID</label>
+          <input pInputText id="advancePaid" formControlName="advancePaid" type="number" placeholder="Enter advance amount" class="w-full" />
+        </div>
+        <div class="form-field">
+          <label for="deliveryDate" class="field-label">DELIVERY DATE</label>
+          <p-datepicker
+            id="deliveryDate"
+            formControlName="deliveryDate"
+            [showIcon]="true"
+            dateFormat="dd M yy"
+            placeholder="Select delivery date"
+            styleClass="w-full"
+            appendTo="body"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,205 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">
+      <i class="pi pi-chart-line"></i>
+    </div>
+    <div class="page-header-text">
+      <h1 class="page-title">Profit & Loss</h1>
+      <p class="page-subtitle">Financial overview of your studio</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <p-button icon="pi pi-file-excel" [outlined]="true" severity="success" [rounded]="true" pTooltip="Export Excel" tooltipPosition="bottom" />
+    <p-button icon="pi pi-file-pdf" [outlined]="true" severity="danger" [rounded]="true" pTooltip="Export PDF" tooltipPosition="bottom" />
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="dash-stats">
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon" style="background: rgba(73, 69, 255, 0.1); color: #4945ff;">
+      <i class="pi pi-indian-rupee"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="text-muted">Total Revenue</span>
+      <span class="dash-stat-value">{{ totalRevenue() | currency:'INR':'symbol':'1.0-0' }}</span>
+    </div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+      <i class="pi pi-check-circle"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="text-muted">Collected</span>
+      <span class="dash-stat-value">{{ totalCollected() | currency:'INR':'symbol':'1.0-0' }}</span>
+    </div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+      <i class="pi pi-arrow-down-left"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="text-muted">Total Expenses</span>
+      <span class="dash-stat-value">{{ totalExpenses() | currency:'INR':'symbol':'1.0-0' }}</span>
+    </div>
+  </div>
+  <div class="dash-stat-card">
+    <div class="dash-stat-icon" [style.background]="grossProfit() >= 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'" [style.color]="grossProfit() >= 0 ? '#22c55e' : '#ef4444'">
+      <i [class]="grossProfit() >= 0 ? 'pi pi-trending-up' : 'pi pi-trending-down'"></i>
+    </div>
+    <div class="dash-stat-info">
+      <span class="text-muted">Net Profit</span>
+      <span class="dash-stat-value" [style.color]="grossProfit() >= 0 ? '#22c55e' : '#ef4444'">
+        {{ grossProfit() | currency:'INR':'symbol':'1.0-0' }}
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-nav">
+  <button type="button" class="tab-item" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">Overview</button>
+  <button type="button" class="tab-item" [class.active]="activeTab() === 'revenue'" (click)="setTab('revenue')">Revenue Breakdown</button>
+  <button type="button" class="tab-item" [class.active]="activeTab() === 'expenses'" (click)="setTab('expenses')">Expense Breakdown</button>
+</div>
+
+<!-- Overview Tab -->
+@if (activeTab() === 'overview') {
+  <div class="dash-charts-row">
+    <!-- Revenue vs Expense Chart -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Financial Summary</h3>
+      </div>
+      <div class="dash-chart-container">
+        <p-chart type="bar" [data]="overviewChartData()" [options]="overviewChartOptions()" height="300px" />
+      </div>
+    </div>
+
+    <!-- Expense Distribution -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Expense Distribution</h3>
+      </div>
+      <div class="dash-chart-container">
+        <p-chart type="doughnut" [data]="expenseChartData()" [options]="expenseChartOptions()" height="300px" />
+      </div>
+    </div>
+  </div>
+
+  <!-- P&L Statement Table -->
+  <div class="dash-card" style="margin-top: 20px;">
+    <div class="dash-card-header">
+      <h3 class="dash-card-title">Profit & Loss Statement</h3>
+    </div>
+    <p-table [value]="plSummary()" class="customer-table" [stripedRows]="false">
+      <ng-template #header>
+        <tr>
+          <th>Particulars</th>
+          <th style="text-align: right;">Amount</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr class="table-row" [style.font-weight]="row.label === 'Net Profit' ? '700' : '400'">
+          <td>
+            @if (row.label === 'Net Profit') {
+              <strong>{{ row.label }}</strong>
+            } @else {
+              {{ row.label }}
+            }
+          </td>
+          <td style="text-align: right;" [class]="getAmountClass(row.type)">
+            @if (row.label === 'Net Profit') {
+              <strong>{{ row.amount | currency:'INR':'symbol':'1.0-0' }}</strong>
+            } @else {
+              {{ row.amount | currency:'INR':'symbol':'1.0-0' }}
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Profit Margin -->
+  <div class="dash-stats" style="margin-top: 20px;">
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(73, 69, 255, 0.1); color: #4945ff;">
+        <i class="pi pi-percentage"></i>
+      </div>
+      <div class="dash-stat-info">
+        <span class="text-muted">Profit Margin</span>
+        <span class="dash-stat-value" [style.color]="profitMargin() >= 0 ? '#22c55e' : '#ef4444'">
+          {{ profitMargin().toFixed(1) }}%
+        </span>
+      </div>
+    </div>
+    <div class="dash-stat-card">
+      <div class="dash-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="dash-stat-info">
+        <span class="text-muted">Pending Receivables</span>
+        <span class="dash-stat-value">{{ totalPending() | currency:'INR':'symbol':'1.0-0' }}</span>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Revenue Breakdown Tab -->
+@if (activeTab() === 'revenue') {
+  <p-table [value]="revenueByService()" class="customer-table" [stripedRows]="false">
+    <ng-template #header>
+      <tr>
+        <th>Service</th>
+        <th style="text-align: right;">Revenue</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr class="table-row">
+        <td>
+          <span class="service-tag">{{ row.name }}</span>
+        </td>
+        <td style="text-align: right;">{{ row.amount | currency:'INR':'symbol':'1.0-0' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="2" class="empty-message">
+          <div class="empty-icon-wrap"><i class="pi pi-indian-rupee"></i></div>
+          <p class="empty-title">No revenue data</p>
+          <p class="empty-desc">Create invoices to see revenue breakdown.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}
+
+<!-- Expense Breakdown Tab -->
+@if (activeTab() === 'expenses') {
+  <p-table [value]="expensesByCategory()" class="customer-table" [stripedRows]="false">
+    <ng-template #header>
+      <tr>
+        <th>Category</th>
+        <th style="text-align: right;">Amount</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr class="table-row">
+        <td>
+          <span class="service-tag">{{ row.category }}</span>
+        </td>
+        <td style="text-align: right;">{{ row.amount | currency:'INR':'symbol':'1.0-0' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="2" class="empty-message">
+          <div class="empty-icon-wrap"><i class="pi pi-wallet"></i></div>
+          <p class="empty-title">No expense data</p>
+          <p class="empty-desc">Add expenses to see breakdown.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

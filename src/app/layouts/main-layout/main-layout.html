@@ -1,0 +1,177 @@
+<div class="app-layout">
+  <!-- Top Header -->
+  <header class="top-header" role="banner">
+    <div class="header-left">
+      <div class="brand">
+        <img src="logo.jpg" alt="PS Creative logo" class="brand-logo" />
+        <span class="brand-name">PS CREATIVE</span>
+      </div>
+      <div class="header-search">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input type="text" placeholder="Search for clients, invoices and more" aria-label="Search" />
+        <kbd class="search-shortcut">Ctrl+K</kbd>
+      </div>
+    </div>
+    <div class="header-right">
+      <button
+        type="button"
+        class="theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+        [pTooltip]="isDark() ? 'Light mode' : 'Dark mode'"
+        tooltipPosition="bottom"
+      >
+        <i [class]="isDark() ? 'pi pi-sun' : 'pi pi-moon'"></i>
+      </button>
+      <div class="header-user" (click)="toggleUserMenu($event)">
+        <div class="header-user-avatar" aria-hidden="true">PS</div>
+        <div class="header-user-info">
+          <span class="header-user-name">PS Studio</span>
+          <span class="header-user-role">Admin</span>
+        </div>
+        <i class="pi pi-chevron-down header-user-chevron" aria-hidden="true"></i>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <aside class="sidebar" [class.sidebar-expanded]="sidebarExpanded()" role="navigation" aria-label="Main navigation">
+      <nav class="sidebar-nav">
+        <ul class="nav-list" role="list">
+          <li>
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Dashboard'" tooltipPosition="right"
+               aria-label="Dashboard">
+              <i class="pi pi-home"></i>
+              <span class="nav-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/customers" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Customers'" tooltipPosition="right"
+               aria-label="Customers">
+              <i class="pi pi-users"></i>
+              <span class="nav-label">Customers</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/services" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Services'" tooltipPosition="right"
+               aria-label="Services">
+              <i class="pi pi-box"></i>
+              <span class="nav-label">Services</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/categories" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Categories'" tooltipPosition="right"
+               aria-label="Categories">
+              <i class="pi pi-tags"></i>
+              <span class="nav-label">Categories</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/packages" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Packages'" tooltipPosition="right"
+               aria-label="Packages">
+              <i class="pi pi-gift"></i>
+              <span class="nav-label">Packages</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/bookings" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Bookings'" tooltipPosition="right"
+               aria-label="Bookings">
+              <i class="pi pi-calendar"></i>
+              <span class="nav-label">Bookings</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/invoices" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Invoices'" tooltipPosition="right"
+               aria-label="Invoices">
+              <i class="pi pi-file-check"></i>
+              <span class="nav-label">Invoices</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/payments" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Payments'" tooltipPosition="right"
+               aria-label="Payments">
+              <i class="pi pi-indian-rupee"></i>
+              <span class="nav-label">Payments</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/deliveries" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Deliveries'" tooltipPosition="right"
+               aria-label="Deliveries">
+              <i class="pi pi-truck"></i>
+              <span class="nav-label">Deliveries</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/expenses" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Expenses'" tooltipPosition="right"
+               aria-label="Expenses">
+              <i class="pi pi-wallet"></i>
+              <span class="nav-label">Expenses</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/profit-loss" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Profit & Loss'" tooltipPosition="right"
+               aria-label="Profit & Loss">
+              <i class="pi pi-chart-line"></i>
+              <span class="nav-label">Profit & Loss</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/reports" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Reports'" tooltipPosition="right"
+               aria-label="Reports">
+              <i class="pi pi-chart-bar"></i>
+              <span class="nav-label">Reports</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/users" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Users'" tooltipPosition="right"
+               aria-label="Users">
+              <i class="pi pi-user"></i>
+              <span class="nav-label">Users</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/audit" routerLinkActive="active" class="nav-icon-link"
+               [pTooltip]="sidebarExpanded() ? '' : 'Audit Log'" tooltipPosition="right"
+               aria-label="Audit Log">
+              <i class="pi pi-history"></i>
+              <span class="nav-label">Audit Log</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-divider"></div>
+        <a routerLink="/settings" routerLinkActive="active" class="nav-icon-link" [pTooltip]="sidebarExpanded() ? '' : 'Settings'" tooltipPosition="right" aria-label="Settings">
+          <i class="pi pi-cog"></i>
+          <span class="nav-label">Settings</span>
+        </a>
+        <button type="button" class="nav-icon-link sidebar-toggle" (click)="toggleSidebar()" [attr.aria-label]="sidebarExpanded() ? 'Collapse sidebar' : 'Expand sidebar'">
+          <i [class]="sidebarExpanded() ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="page-content" role="main">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<!-- User dropdown menu -->
+<p-menu #userMenu [model]="userMenuItems" [popup]="true" appendTo="body" />

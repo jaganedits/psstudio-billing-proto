@@ -1,0 +1,385 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-header-text">
+      <h1 class="page-title">Reports</h1>
+      <p class="page-subtitle">Analyze your studio's performance across revenue, customers, services, and expenses.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav" aria-label="Report tabs">
+  <button
+    type="button"
+    class="tab-item"
+    [class.active]="activeTab() === 'revenue'"
+    (click)="setTab('revenue')"
+  >
+    <i class="pi pi-indian-rupee"></i> Revenue
+  </button>
+  <button
+    type="button"
+    class="tab-item"
+    [class.active]="activeTab() === 'customers'"
+    (click)="setTab('customers')"
+  >
+    <i class="pi pi-users"></i> Customers
+  </button>
+  <button
+    type="button"
+    class="tab-item"
+    [class.active]="activeTab() === 'services'"
+    (click)="setTab('services')"
+  >
+    <i class="pi pi-camera"></i> Services
+  </button>
+  <button
+    type="button"
+    class="tab-item"
+    [class.active]="activeTab() === 'expenses'"
+    (click)="setTab('expenses')"
+  >
+    <i class="pi pi-wallet"></i> Expenses
+  </button>
+</nav>
+
+@switch (activeTab()) {
+  <!-- ── Revenue Tab ── -->
+  @case ('revenue') {
+    <div class="dash-stats">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--revenue">
+          <i class="pi pi-indian-rupee"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Total Revenue</span>
+          <span class="dash-stat-value">&#8377;{{ totalRevenue() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--bookings">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Collected</span>
+          <span class="dash-stat-value">&#8377;{{ totalCollected() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--pending">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Pending</span>
+          <span class="dash-stat-value">&#8377;{{ totalPending() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--customers">
+          <i class="pi pi-file"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Invoices</span>
+          <span class="dash-stat-value">{{ invoiceCount() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-charts-row">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">Revenue by Status</h3>
+        </div>
+        <div class="dash-chart-container">
+          <p-chart
+            type="doughnut"
+            [data]="revenueChartData()"
+            [options]="revenueChartOptions()"
+            height="280px"
+          />
+        </div>
+      </div>
+      <div class="dash-card dash-card--wide">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">Collection by Payment Mode</h3>
+        </div>
+        <div class="dash-card-body">
+          @for (mode of revenueByPaymentMode(); track mode[0]) {
+            <div class="dash-list-item">
+              <div class="dash-list-item-left">
+                <span class="dash-list-item-title">{{ mode[0] }}</span>
+              </div>
+              <div class="dash-list-item-right">
+                <span class="dash-list-item-amount">&#8377;{{ mode[1] | number:'1.0-0' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Customers Tab ── -->
+  @case ('customers') {
+    <div class="dash-stats">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--bookings">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Active Customers</span>
+          <span class="dash-stat-value">{{ activeCustomerCount() }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--pending">
+          <i class="pi pi-user-minus"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Inactive</span>
+          <span class="dash-stat-value">{{ inactiveCustomerCount() }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--customers">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Total Customers</span>
+          <span class="dash-stat-value">{{ totalCustomerCount() }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--revenue">
+          <i class="pi pi-indian-rupee"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Pending Balance</span>
+          <span class="dash-stat-value">&#8377;{{ totalCustomerPending() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-charts-row">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">Customer Status</h3>
+        </div>
+        <div class="dash-chart-container">
+          <p-chart
+            type="doughnut"
+            [data]="customerStatusChartData()"
+            [options]="customerStatusChartOptions()"
+            height="280px"
+          />
+        </div>
+      </div>
+      <div class="dash-card dash-card--wide">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">Top Customers by Spend</h3>
+        </div>
+        <div class="dash-chart-container">
+          <p-chart
+            type="bar"
+            [data]="customerSpendChartData()"
+            [options]="customerSpendChartOptions()"
+            height="280px"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-card" style="margin-top: 16px;">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Top Customers by Orders</h3>
+      </div>
+      <div class="dash-card-body">
+        @for (cust of topCustomersByOrders(); track cust.id) {
+          <div class="dash-list-item">
+            <div class="dash-list-item-left">
+              <span class="dash-list-item-title">{{ cust.name }}</span>
+              <span class="dash-list-item-sub">{{ cust.city }} &middot; {{ cust.status }}</span>
+            </div>
+            <div class="dash-list-item-right">
+              <span class="dash-list-item-amount">{{ cust.totalOrders }} orders</span>
+              @if (cust.pendingBalance > 0) {
+                <span class="status-tag status-tag--partial">&#8377;{{ cust.pendingBalance | number:'1.0-0' }} due</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Services Tab ── -->
+  @case ('services') {
+    <div class="dash-stats">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--revenue">
+          <i class="pi pi-indian-rupee"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Service Revenue</span>
+          <span class="dash-stat-value">&#8377;{{ totalServiceRevenue() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--bookings">
+          <i class="pi pi-camera"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Unique Services</span>
+          <span class="dash-stat-value">{{ uniqueServiceCount() }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--customers">
+          <i class="pi pi-calendar"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Total Booking Value</span>
+          <span class="dash-stat-value">&#8377;{{ totalBookingValue() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--pending">
+          <i class="pi pi-file"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Invoices</span>
+          <span class="dash-stat-value">{{ invoiceCount() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-card" style="margin-bottom: 16px;">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Top Services by Revenue</h3>
+      </div>
+      <div class="dash-chart-container">
+        <p-chart
+          type="bar"
+          [data]="servicesChartData()"
+          [options]="servicesChartOptions()"
+          height="320px"
+        />
+      </div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Service Breakdown</h3>
+      </div>
+      <div class="dash-card-body">
+        @for (svc of topServicesByRevenue(); track svc[0]) {
+          <div class="dash-list-item">
+            <div class="dash-list-item-left">
+              <span class="dash-list-item-title">{{ svc[0] }}</span>
+              <span class="dash-list-item-sub">{{ svc[1].count }} sold</span>
+            </div>
+            <div class="dash-list-item-right">
+              <span class="dash-list-item-amount">&#8377;{{ svc[1].revenue | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Expenses Tab ── -->
+  @case ('expenses') {
+    <div class="dash-stats">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--pending">
+          <i class="pi pi-wallet"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Total Expenses</span>
+          <span class="dash-stat-value">&#8377;{{ totalExpenses() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--bookings">
+          <i class="pi pi-indian-rupee"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Total Collected</span>
+          <span class="dash-stat-value">&#8377;{{ totalCollected() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--revenue">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Net Profit</span>
+          <span class="dash-stat-value">&#8377;{{ netProfit() | number:'1.0-0' }}</span>
+        </div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon--customers">
+          <i class="pi pi-tags"></i>
+        </div>
+        <div class="dash-stat-info">
+          <span class="dash-stat-label">Categories</span>
+          <span class="dash-stat-value">{{ expenseCategoryCount() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-charts-row">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">Expenses by Category</h3>
+        </div>
+        <div class="dash-chart-container">
+          <p-chart
+            type="doughnut"
+            [data]="expensesChartData()"
+            [options]="expensesChartOptions()"
+            height="280px"
+          />
+        </div>
+      </div>
+      <div class="dash-card dash-card--wide">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">Expense Details by Category</h3>
+        </div>
+        <div class="dash-card-body">
+          @for (cat of expensesByCategory(); track cat[0]) {
+            <div class="dash-list-item">
+              <div class="dash-list-item-left">
+                <span class="dash-list-item-title">{{ cat[0] }}</span>
+              </div>
+              <div class="dash-list-item-right">
+                <span class="dash-list-item-amount">&#8377;{{ cat[1] | number:'1.0-0' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-card" style="margin-top: 16px;">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Recent Expenses</h3>
+      </div>
+      <div class="dash-card-body">
+        @for (exp of activeExpenses(); track exp.id) {
+          <div class="dash-list-item">
+            <div class="dash-list-item-left">
+              <span class="dash-list-item-title">{{ exp.description }}</span>
+              <span class="dash-list-item-sub">{{ exp.category }} &middot; {{ exp.date }}</span>
+            </div>
+            <div class="dash-list-item-right">
+              <span class="dash-list-item-amount">&#8377;{{ exp.amount | number:'1.0-0' }}</span>
+              <span class="status-tag status-tag--partial">{{ exp.paymentMode }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}
