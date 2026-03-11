@@ -2253,7 +2253,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--surface-card);
   padding: 48px;
 }
 
@@ -2265,13 +2265,13 @@ a {
 .login-title {
   font-size: 26px;
   font-weight: 700;
-  color: #32324d;
+  color: var(--text-primary);
   margin: 0 0 8px;
 }
 
 .login-subtitle {
   font-size: 14px;
-  color: #666687;
+  color: var(--text-secondary);
   margin: 0 0 32px;
   line-height: 1.5;
 }
@@ -2282,11 +2282,11 @@ a {
   gap: 20px;
 
   .field-label {
-    color: #32324d;
+    color: var(--text-secondary);
   }
 
   .form-error {
-    color: #d02b20;
+    color: var(--accent-red);
   }
 
   .p-inputtext,
@@ -2298,7 +2298,7 @@ a {
 
 .forgot-link {
   font-size: 13px;
-  color: #4945ff;
+  color: var(--primary);
   font-weight: 500;
 
   &:hover {
@@ -2309,12 +2309,12 @@ a {
 .login-footer {
   margin: 24px 0 0;
   font-size: 14px;
-  color: #666687;
+  color: var(--text-secondary);
   text-align: center;
 }
 
 .signup-link {
-  color: #4945ff;
+  color: var(--primary);
   font-weight: 600;
 
   &:hover {
@@ -2325,7 +2325,7 @@ a {
 .powered-by {
   margin-top: 32px;
   font-size: 11px;
-  color: #8e8ea9;
+  color: var(--text-muted);
   text-align: center;
   letter-spacing: 0.3px;
 }

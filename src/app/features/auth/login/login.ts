@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -22,6 +22,7 @@ import { PasswordModule } from 'primeng/password';
 })
 export class Login {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -37,7 +38,6 @@ export class Login {
       return;
     }
     this.loading.set(true);
-    // TODO: integrate auth service
-    console.log('Login:', this.form.getRawValue());
+    this.router.navigate(['/dashboard']).finally(() => this.loading.set(false));
   }
 }

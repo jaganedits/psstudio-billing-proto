@@ -4,6 +4,7 @@ import {
   inject,
   computed,
   signal,
+  AfterViewInit,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -12,6 +13,7 @@ import { ChartModule } from 'primeng/chart';
 import { InvoiceService } from '../../shared/services/invoice.service';
 import { BookingService } from '../../shared/services/booking.service';
 import { CustomerService } from '../../shared/services/customer.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,12 +22,18 @@ import { CustomerService } from '../../shared/services/customer.service';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard {
+export class Dashboard implements AfterViewInit {
   private readonly invoiceService = inject(InvoiceService);
   private readonly bookingService = inject(BookingService);
   private readonly customerService = inject(CustomerService);
+  private readonly themeService = inject(ThemeService);
 
   readonly chartPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
+  readonly chartRenderTick = signal(0);
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.chartRenderTick.update((v) => v + 1));
+  }
 
   readonly totalRevenue = computed(() => {
     return this.invoiceService.invoices()
@@ -77,6 +85,8 @@ export class Dashboard {
 
   // Chart data
   readonly revenueChartData = computed(() => {
+    this.chartRenderTick();
+    this.themeService.isDark();
     const period = this.chartPeriod();
     const style = getComputedStyle(document.documentElement);
     const primary = style.getPropertyValue('--primary').trim() || '#4945ff';
@@ -153,9 +163,12 @@ export class Dashboard {
   });
 
   readonly revenueChartOptions = computed(() => {
+    this.chartRenderTick();
+    const isDark = this.themeService.isDark();
     const style = getComputedStyle(document.documentElement);
     const textMuted = style.getPropertyValue('--text-muted').trim() || '#8e8ea9';
-    const borderColor = style.getPropertyValue('--border-light').trim() || '#eaeaef';
+    const borderColor = style.getPropertyValue('--border-light').trim()
+      || (isDark ? 'rgba(255,255,255,0.08)' : '#eaeaef');
     const period = this.chartPeriod();
 
     return {
@@ -233,6 +246,8 @@ export class Dashboard {
   });
 
   readonly paymentModeOptions = computed(() => {
+    this.chartRenderTick();
+    this.themeService.isDark();
     const style = getComputedStyle(document.documentElement);
     const textMuted = style.getPropertyValue('--text-muted').trim() || '#8e8ea9';
     return {
@@ -297,9 +312,12 @@ export class Dashboard {
   });
 
   readonly topServicesOptions = computed(() => {
+    this.chartRenderTick();
+    const isDark = this.themeService.isDark();
     const style = getComputedStyle(document.documentElement);
     const textMuted = style.getPropertyValue('--text-muted').trim() || '#8e8ea9';
-    const borderColor = style.getPropertyValue('--border-light').trim() || '#eaeaef';
+    const borderColor = style.getPropertyValue('--border-light').trim()
+      || (isDark ? 'rgba(255,255,255,0.08)' : '#eaeaef');
     return {
       responsive: true,
       maintainAspectRatio: false,

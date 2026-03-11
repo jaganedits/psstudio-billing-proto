@@ -1,22 +1,24 @@
-import { Component, ChangeDetectionStrategy, viewChild, signal, inject, DOCUMENT } from '@angular/core';
+import { Component, ChangeDetectionStrategy, viewChild, signal, inject } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { NotificationPanel } from '../../shared/components/notification-panel/notification-panel';
+import { RouteLoader } from '../../shared/components/route-loader/route-loader';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-main-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TooltipModule, MenuModule, NotificationPanel],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TooltipModule, MenuModule, NotificationPanel, RouteLoader],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
 export class MainLayout {
-  private readonly document = inject(DOCUMENT);
   private readonly router = inject(Router);
+  private readonly themeService = inject(ThemeService);
   readonly userMenu = viewChild<Menu>('userMenu');
-  readonly isDark = signal(true);
+  readonly isDark = this.themeService.isDark;
   readonly sidebarExpanded = signal(false);
   readonly mobileSidebarOpen = signal(false);
 
@@ -28,24 +30,8 @@ export class MainLayout {
     { label: 'Sign Out', icon: 'pi pi-sign-out', command: () => this.router.navigate(['/login']) },
   ];
 
-  constructor() {
-    this.document.documentElement.classList.add('dark-mode');
-  }
-
   toggleTheme(): void {
-    const root = this.document.documentElement;
-    const dark = !this.isDark();
-
-    const applyTheme = () => {
-      this.isDark.set(dark);
-      root.classList.toggle('dark-mode', dark);
-    };
-
-    if ('startViewTransition' in this.document) {
-      (this.document as any).startViewTransition(applyTheme);
-    } else {
-      applyTheme();
-    }
+    this.themeService.toggleTheme();
   }
 
   toggleSidebar(): void {
