@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter, withViewTransitions } from '@angular/router';
+import { provideRouter, withPreloading, withViewTransitions, PreloadAllModules } from '@angular/router';
 
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
@@ -46,6 +46,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(
       routes,
+      withPreloading(PreloadAllModules),
       withViewTransitions({ skipInitialTransition: true }),
     ),
     providePrimeNG({
