@@ -148,6 +148,7 @@
             placeholder="Select package"
             [showClear]="true"
             styleClass="w-full"
+            (onChange)="onPackageChange($event.value)"
           />
         </div>
         <div class="form-field">

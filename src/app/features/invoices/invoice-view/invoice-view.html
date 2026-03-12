@@ -1,3 +1,4 @@
+<!-- Page Header -->
 <div class="page-header">
   <div class="page-header-left">
     <div class="page-icon"><i class="pi pi-file-check"></i></div>
@@ -14,9 +15,7 @@
 
 @if (notFound()) {
   <div class="empty-message">
-    <div class="empty-icon-wrap">
-      <i class="pi pi-file-check"></i>
-    </div>
+    <div class="empty-icon-wrap"><i class="pi pi-file-check"></i></div>
     <p class="empty-title">Invoice not found</p>
     <p class="empty-desc">The invoice you're looking for doesn't exist or has been deleted.</p>
     <p-button label="Back to Invoices" icon="pi pi-arrow-left" (onClick)="goBack()" styleClass="add-btn" />
@@ -24,64 +23,168 @@
 }
 
 @if (invoice(); as inv) {
-  <div class="invoice-view">
-    <div class="invoice-header">
-      <div class="invoice-company">
-        <h2>PS CREATIVE</h2>
-        <p>Photography Studio</p>
-      </div>
-      <div class="invoice-meta">
-        <h3>INVOICE</h3>
-        <p>{{ inv.invoiceNumber }}</p>
-        <p>Date: {{ inv.date }}</p>
-      </div>
-    </div>
+  <div class="inv-layout">
+    <!-- ━━━ Main Document ━━━ -->
+    <div class="inv-doc">
+      <!-- Decorative top accent -->
+      <div class="inv-doc-accent" aria-hidden="true"></div>
 
-    <div class="invoice-customer">
-      <h4>Bill To:</h4>
-      <p><strong>{{ inv.customer }}</strong></p>
-      <p>{{ inv.phone }}</p>
-    </div>
+      <!-- Header: Brand + Invoice meta -->
+      <div class="inv-doc-header">
+        <div class="inv-brand">
+          <div class="inv-brand-mark" aria-hidden="true">PS</div>
+          <div class="inv-brand-text">
+            <h2 class="inv-brand-name">PS Creative</h2>
+            <span class="inv-brand-tagline">Photography Studio</span>
+          </div>
+        </div>
+        <div class="inv-doc-meta">
+          <span class="inv-doc-number">{{ inv.invoiceNumber }}</span>
+          <span class="inv-doc-date">{{ inv.date }}</span>
+        </div>
+      </div>
 
-    <table class="invoice-items-table">
-      <thead>
-        <tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
-      </thead>
-      <tbody>
-        @for (item of inv.items; track item.name) {
+      <!-- Bill-to -->
+      <div class="inv-billto">
+        <span class="inv-label">Bill To</span>
+        <span class="inv-billto-name">{{ inv.customer }}</span>
+        <span class="inv-billto-phone">{{ inv.phone }}</span>
+      </div>
+
+      <!-- Items table -->
+      <table class="inv-table">
+        <thead>
           <tr>
-            <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>&#8377;{{ item.price | number }}</td>
-            <td>&#8377;{{ item.total | number }}</td>
+            <th class="inv-th-item">Service / Product</th>
+            <th class="inv-th-num">Qty</th>
+            <th class="inv-th-num">Rate</th>
+            <th class="inv-th-amount">Amount</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (item of inv.items; track item.name; let i = $index) {
+            <tr class="inv-row" [style.animation-delay]="(i * 60) + 'ms'">
+              <td class="inv-td-item">{{ item.name }}</td>
+              <td class="inv-td-num">{{ item.quantity }}</td>
+              <td class="inv-td-num">&#8377;{{ item.price | number }}</td>
+              <td class="inv-td-amount">&#8377;{{ item.total | number }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
 
-    <div class="invoice-totals">
-      <div class="total-row"><span>Subtotal</span><span>&#8377;{{ inv.subtotal | number }}</span></div>
-      <div class="total-row"><span>Discount</span><span>- &#8377;{{ inv.discount | number }}</span></div>
-      <div class="total-row"><span>GST</span><span>&#8377;{{ inv.gst | number }}</span></div>
-      <div class="total-row total-grand"><span>Grand Total</span><span>&#8377;{{ inv.total | number }}</span></div>
-    </div>
+      <!-- Totals -->
+      <div class="inv-totals">
+        <div class="inv-totals-grid">
+          <div class="inv-total-line">
+            <span>Subtotal</span>
+            <span>&#8377;{{ inv.subtotal | number }}</span>
+          </div>
+          @if (inv.discount > 0) {
+            <div class="inv-total-line inv-total-line--discount">
+              <span>Discount</span>
+              <span>- &#8377;{{ inv.discount | number }}</span>
+            </div>
+          }
+          <div class="inv-total-line">
+            <span>GST ({{ inv.gstPercent }}%)</span>
+            <span>&#8377;{{ inv.gst | number }}</span>
+          </div>
+          <div class="inv-total-grand">
+            <span>Grand Total</span>
+            <span class="inv-grand-amount">&#8377;{{ inv.total | number }}</span>
+          </div>
+        </div>
+      </div>
 
-    <div class="invoice-payment">
-      <div class="total-row"><span>Payment Mode</span><span>{{ inv.paymentMode }}</span></div>
-      <div class="total-row"><span>Amount Paid</span><span>&#8377;{{ inv.paid | number }}</span></div>
-      <div class="total-row" [class.balance-due]="inv.balance > 0">
-        <span>Balance Due</span>
-        <span>&#8377;{{ inv.balance | number }}</span>
+      <!-- Footer -->
+      <div class="inv-doc-footer">
+        <p class="inv-thanks">Thank you for choosing PS Creative</p>
+        <p class="inv-terms">All payments are non-refundable. Photos will be delivered within 7 working days.</p>
       </div>
     </div>
 
-    <div class="invoice-footer">
-      <p><strong>Thank you for your business!</strong></p>
-      <p class="invoice-terms">Terms: All payments are non-refundable. Photos will be delivered within 7 working days.</p>
-    </div>
+    <!-- ━━━ Sidebar ━━━ -->
+    <div class="inv-aside">
+      <!-- Status Badge Card -->
+      <div class="inv-card inv-card--status">
+        <div class="inv-status-badge inv-status-badge--{{ inv.status.toLowerCase() }}">
+          <i class="pi" [class.pi-check-circle]="inv.status === 'Paid'" [class.pi-exclamation-circle]="inv.status === 'Partial' || inv.status === 'Unpaid'" [class.pi-times-circle]="inv.status === 'Cancelled'"></i>
+          <span>{{ inv.status }}</span>
+        </div>
+      </div>
 
-    <div class="invoice-status">
-      <p-tag [value]="inv.status" [severity]="getStatusSeverity(inv.status)" />
+      <!-- Payment Card -->
+      <div class="inv-card">
+        <div class="inv-card-label">Payment</div>
+        <div class="inv-card-metric">
+          <span class="inv-card-metric-value inv-card-metric-value--green">&#8377;{{ inv.paid | number }}</span>
+          <span class="inv-card-metric-caption">of &#8377;{{ inv.total | number }}</span>
+        </div>
+        <!-- Progress bar -->
+        <div class="inv-progress" role="progressbar" [attr.aria-valuenow]="inv.total > 0 ? (inv.paid / inv.total * 100) : 0" aria-valuemin="0" aria-valuemax="100">
+          <div class="inv-progress-fill" [style.width.%]="inv.total > 0 ? (inv.paid / inv.total * 100) : 0"></div>
+        </div>
+        <div class="inv-card-rows">
+          <div class="inv-card-row">
+            <span>Mode</span>
+            <span class="inv-card-row-value">{{ inv.paymentMode }}</span>
+          </div>
+          <div class="inv-card-row">
+            <span>Balance</span>
+            <span class="inv-card-row-value" [class.inv-text-danger]="inv.balance > 0">
+              @if (inv.balance === 0) {
+                Cleared
+              } @else {
+                &#8377;{{ inv.balance | number }}
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Card -->
+      <div class="inv-card">
+        <div class="inv-card-label">Delivery</div>
+        <div class="inv-delivery-status inv-delivery-status--{{ inv.deliveryStatus.toLowerCase() }}">
+          <div class="inv-delivery-icon">
+            <i class="pi" [class.pi-truck]="inv.deliveryStatus === 'Pending'" [class.pi-check-circle]="inv.deliveryStatus === 'Delivered' || inv.deliveryStatus === 'Ready'"></i>
+          </div>
+          <div class="inv-delivery-text">
+            <span class="inv-delivery-value">{{ inv.deliveryStatus }}</span>
+            <span class="inv-delivery-caption">
+              @switch (inv.deliveryStatus) {
+                @case ('Pending') { Awaiting processing }
+                @case ('Ready') { Ready for pickup }
+                @case ('Delivered') { Delivered successfully }
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Info Card -->
+      <div class="inv-card">
+        <div class="inv-card-label">Details</div>
+        <div class="inv-card-rows">
+          <div class="inv-card-row">
+            <span>Invoice</span>
+            <span class="inv-card-row-value">{{ inv.invoiceNumber }}</span>
+          </div>
+          <div class="inv-card-row">
+            <span>Date</span>
+            <span class="inv-card-row-value">{{ inv.date }}</span>
+          </div>
+          <div class="inv-card-row">
+            <span>Items</span>
+            <span class="inv-card-row-value">{{ inv.items.length }}</span>
+          </div>
+          <div class="inv-card-row">
+            <span>Customer</span>
+            <span class="inv-card-row-value">{{ inv.customer }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 }

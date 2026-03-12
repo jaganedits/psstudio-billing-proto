@@ -100,22 +100,37 @@
           />
         </div>
       </div>
-      <div class="dash-card dash-card--wide">
+      <div class="dash-card">
         <div class="dash-card-header">
           <h3 class="dash-card-title">Collection by Payment Mode</h3>
         </div>
-        <div class="dash-card-body">
-          @for (mode of revenueByPaymentMode(); track mode[0]) {
-            <div class="dash-list-item">
-              <div class="dash-list-item-left">
-                <span class="dash-list-item-title">{{ mode[0] }}</span>
-              </div>
-              <div class="dash-list-item-right">
-                <span class="dash-list-item-amount">&#8377;{{ mode[1] | number:'1.0-0' }}</span>
-              </div>
-            </div>
-          }
+        <div class="dash-chart-container">
+          <p-chart
+            type="doughnut"
+            [data]="paymentModeChartData()"
+            [options]="paymentModeChartOptions()"
+            height="280px"
+          />
         </div>
+      </div>
+    </div>
+
+    <!-- Payment Mode Breakdown List -->
+    <div class="dash-card" style="margin-top: 16px;">
+      <div class="dash-card-header">
+        <h3 class="dash-card-title">Payment Mode Breakdown</h3>
+      </div>
+      <div class="dash-card-body">
+        @for (mode of revenueByPaymentMode(); track mode[0]) {
+          <div class="dash-list-item">
+            <div class="dash-list-item-left">
+              <span class="dash-list-item-title">{{ mode[0] }}</span>
+            </div>
+            <div class="dash-list-item-right">
+              <span class="dash-list-item-amount">&#8377;{{ mode[1] | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        }
       </div>
     </div>
   }

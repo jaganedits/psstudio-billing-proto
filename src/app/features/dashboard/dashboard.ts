@@ -13,6 +13,7 @@ import { ChartModule } from 'primeng/chart';
 import { InvoiceService } from '../../shared/services/invoice.service';
 import { BookingService } from '../../shared/services/booking.service';
 import { CustomerService } from '../../shared/services/customer.service';
+import { PaymentService } from '../../shared/services/payment.service';
 import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
@@ -26,6 +27,7 @@ export class Dashboard implements AfterViewInit {
   private readonly invoiceService = inject(InvoiceService);
   private readonly bookingService = inject(BookingService);
   private readonly customerService = inject(CustomerService);
+  private readonly paymentService = inject(PaymentService);
   private readonly themeService = inject(ThemeService);
 
   readonly chartPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
@@ -100,7 +102,7 @@ export class Dashboard implements AfterViewInit {
         datasets: [
           {
             label: 'Revenue',
-            data: [3540, 0, 17700, 0, 17700, 7788, 35400],
+            data: [3540, 8500, 17700, 5200, 17700, 7788, 35400],
             backgroundColor: primary + '99',
             borderColor: primary,
             borderWidth: 2,
@@ -108,7 +110,7 @@ export class Dashboard implements AfterViewInit {
           },
           {
             label: 'Collected',
-            data: [3540, 0, 10000, 0, 17700, 7788, 0],
+            data: [3540, 6000, 10000, 3500, 17700, 7788, 12000],
             backgroundColor: green + '99',
             borderColor: green,
             borderWidth: 2,
@@ -227,12 +229,12 @@ export class Dashboard implements AfterViewInit {
     return 'bar';
   });
 
-  // Payment mode doughnut chart
+  // Payment mode doughnut chart — derived from actual payment records
   readonly paymentModeData = computed(() => {
-    const invoices = this.invoiceService.invoices().filter(i => i.status !== 'Cancelled');
+    const payments = this.paymentService.payments();
     const modes: Record<string, number> = {};
-    for (const inv of invoices) {
-      modes[inv.paymentMode] = (modes[inv.paymentMode] || 0) + inv.paid;
+    for (const p of payments) {
+      modes[p.paymentMode] = (modes[p.paymentMode] || 0) + p.amount;
     }
     return {
       labels: Object.keys(modes),

@@ -11,6 +11,7 @@ import { InvoiceService } from '../../shared/services/invoice.service';
 import { BookingService } from '../../shared/services/booking.service';
 import { CustomerService } from '../../shared/services/customer.service';
 import { ExpenseService } from '../../shared/services/expense.service';
+import { PaymentService } from '../../shared/services/payment.service';
 
 type ReportTab = 'revenue' | 'customers' | 'services' | 'expenses';
 
@@ -26,6 +27,7 @@ export class Reports {
   private readonly bookingService = inject(BookingService);
   private readonly customerService = inject(CustomerService);
   private readonly expenseService = inject(ExpenseService);
+  private readonly paymentService = inject(PaymentService);
 
   readonly activeTab = signal<ReportTab>('revenue');
 
@@ -109,14 +111,60 @@ export class Reports {
   });
 
   readonly revenueByPaymentMode = computed(() => {
-    const invoices = this.invoiceService.invoices().filter(i => i.status !== 'Cancelled');
+    const payments = this.paymentService.payments();
     const modes: Record<string, number> = {};
-    for (const inv of invoices) {
-      if (inv.paid > 0) {
-        modes[inv.paymentMode] = (modes[inv.paymentMode] || 0) + inv.paid;
-      }
+    for (const p of payments) {
+      modes[p.paymentMode] = (modes[p.paymentMode] || 0) + p.amount;
     }
     return Object.entries(modes).sort((a, b) => b[1] - a[1]);
+  });
+
+  readonly paymentModeChartData = computed(() => {
+    const modes = this.revenueByPaymentMode();
+    const colors = ['#4945ff', '#328048', '#d9822f', '#7b79ff'];
+    return {
+      labels: modes.map(([name]) => name),
+      datasets: [{
+        data: modes.map(([, val]) => val),
+        backgroundColor: modes.map((_, i) => colors[i % colors.length] + 'cc'),
+        borderColor: modes.map((_, i) => colors[i % colors.length]),
+        borderWidth: 2,
+        hoverOffset: 6,
+      }],
+    };
+  });
+
+  readonly paymentModeChartOptions = computed(() => {
+    const style = getComputedStyle(document.documentElement);
+    const textMuted = style.getPropertyValue('--text-muted').trim() || '#8e8ea9';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom' as const,
+          labels: {
+            color: textMuted,
+            usePointStyle: true,
+            pointStyle: 'circle',
+            font: { size: 11, family: 'Poppins' },
+            padding: 14,
+          },
+        },
+        tooltip: {
+          backgroundColor: '#1e1e30',
+          titleFont: { family: 'Poppins', size: 12 },
+          bodyFont: { family: 'Poppins', size: 12 },
+          padding: 10,
+          cornerRadius: 6,
+          callbacks: {
+            label: (ctx: { label: string; parsed: number }) =>
+              `${ctx.label}: \u20B9${ctx.parsed.toLocaleString()}`,
+          },
+        },
+      },
+    };
   });
 
   // ── Customers Tab ──

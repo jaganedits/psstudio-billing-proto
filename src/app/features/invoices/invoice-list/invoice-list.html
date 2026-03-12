@@ -97,7 +97,10 @@
         <p-tag [value]="invoice.status" [severity]="getStatusSeverity(invoice.status)" />
       </td>
       <td>
-        <p-tag [value]="invoice.deliveryStatus" [severity]="getDeliverySeverity(invoice.deliveryStatus)" />
+        <span class="delivery-tag delivery-tag--{{ invoice.deliveryStatus.toLowerCase() }}">
+          <i class="pi" [class.pi-truck]="invoice.deliveryStatus === 'Pending'" [class.pi-check-circle]="invoice.deliveryStatus === 'Delivered' || invoice.deliveryStatus === 'Ready'"></i>
+          {{ invoice.deliveryStatus }}
+        </span>
       </td>
       <td>
         <button

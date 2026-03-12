@@ -6,6 +6,8 @@ export interface Booking {
   location: string;
   photographer: string;
   package: string;
+  packageId: number | null;
+  invoiceId: number | null;
   totalAmount: number;
   advancePaid: number;
   balance: number;

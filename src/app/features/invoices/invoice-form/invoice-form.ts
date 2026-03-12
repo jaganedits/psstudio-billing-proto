@@ -139,7 +139,7 @@ export class InvoiceForm {
           customer: invoice.customer,
           phone: invoice.phone,
           discount: invoice.discount,
-          gstPercent: invoice.subtotal > 0 ? Math.round((invoice.gst / (invoice.subtotal - invoice.discount)) * 100) : 18,
+          gstPercent: invoice.gstPercent,
           amountPaid: invoice.paid,
           paymentMode: invoice.paymentMode,
         });
@@ -319,6 +319,8 @@ export class InvoiceForm {
 
     this.ensureCustomerExists(customerName, phone, email);
 
+    const gstPercent = formValue.gstPercent;
+
     if (this.editingInvoice) {
       this.invoiceService.updateInvoice({
         ...this.editingInvoice,
@@ -326,7 +328,7 @@ export class InvoiceForm {
         date: dateStr,
         customer: customerName,
         phone,
-        items, subtotal, discount, gst, total, paid, balance,
+        items, subtotal, discount, gstPercent, gst, total, paid, balance,
         paymentMode: formValue.paymentMode,
         status,
       });
@@ -336,7 +338,8 @@ export class InvoiceForm {
         date: dateStr,
         customer: customerName,
         phone,
-        items, subtotal, discount, gst, total, paid, balance,
+        bookingId: null,
+        items, subtotal, discount, gstPercent, gst, total, paid, balance,
         paymentMode: formValue.paymentMode,
         status,
         deliveryStatus: 'Pending',

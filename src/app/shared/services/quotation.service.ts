@@ -112,14 +112,19 @@ export class QuotationService {
   }
 
   convertToInvoice(quotation: Quotation): void {
+    const gstPercent = quotation.subtotal - quotation.discount > 0
+      ? Math.round((quotation.gst / (quotation.subtotal - quotation.discount)) * 100)
+      : 18;
     this.invoiceService.addInvoice({
       invoiceNumber: this.invoiceService.nextInvoiceNumber(),
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       customer: quotation.customer,
       phone: quotation.phone,
+      bookingId: null,
       items: quotation.items.map((item) => ({ ...item })),
       subtotal: quotation.subtotal,
       discount: quotation.discount,
+      gstPercent,
       gst: quotation.gst,
       total: quotation.total,
       paid: 0,

@@ -14,6 +14,7 @@ import { ConfirmationService, MenuItem } from 'primeng/api';
 
 import { Booking } from '../../../shared/models/booking.model';
 import { BookingService } from '../../../shared/services/booking.service';
+import { CustomerService } from '../../../shared/services/customer.service';
 
 interface TabItem {
   label: string;
@@ -42,6 +43,7 @@ interface TabItem {
 })
 export class BookingList {
   private readonly bookingService = inject(BookingService);
+  private readonly customerService = inject(CustomerService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly router = inject(Router);
 
@@ -136,7 +138,7 @@ export class BookingList {
 
   showActionMenu(event: Event, booking: Booking): void {
     this.selectedBooking.set(booking);
-    this.menuItems.set([
+    const items: MenuItem[] = [
       {
         label: 'View',
         icon: 'pi pi-eye',
@@ -147,13 +149,41 @@ export class BookingList {
         icon: 'pi pi-pencil',
         command: () => this.openEditForm(booking),
       },
-      {
+    ];
+
+    if (booking.status !== 'Cancelled' && !booking.invoiceId) {
+      items.push({
+        label: 'Create Invoice',
+        icon: 'pi pi-file-check',
+        command: () => this.createInvoice(booking),
+      });
+    }
+
+    if (booking.invoiceId) {
+      items.push({
+        label: 'View Invoice',
+        icon: 'pi pi-file-check',
+        command: () => this.router.navigate(['/invoices', booking.invoiceId]),
+      });
+    }
+
+    if (booking.status !== 'Cancelled') {
+      items.push({ separator: true });
+      items.push({
         label: 'Cancel Booking',
         icon: 'pi pi-times-circle',
         command: () => this.confirmCancel(booking),
-      },
-    ]);
+      });
+    }
+
+    this.menuItems.set(items);
     this.actionMenu()?.toggle(event);
+  }
+
+  private createInvoice(booking: Booking): void {
+    const customer = this.customerService.customers().find(c => c.name === booking.customer);
+    const phone = customer?.phone ?? '';
+    this.bookingService.createInvoiceFromBooking(booking, phone);
   }
 
   private confirmCancel(booking: Booking): void {

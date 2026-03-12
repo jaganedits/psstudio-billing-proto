@@ -204,8 +204,26 @@ export class InvoiceList {
         });
       }
     }
+    if (invoice.status !== 'Cancelled') {
+      items.push({ separator: true });
+      items.push({
+        label: 'Cancel Invoice',
+        icon: 'pi pi-times-circle',
+        command: () => this.confirmCancelInvoice(invoice),
+      });
+    }
     this.menuItems.set(items);
     this.actionMenu()?.toggle(event);
+  }
+
+  private confirmCancelInvoice(invoice: Invoice): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to cancel invoice ${invoice.invoiceNumber}?`,
+      header: 'Cancel Invoice',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.invoiceService.deleteInvoice(invoice.id),
+    });
   }
 
   openPaymentForm(invoice: Invoice): void {

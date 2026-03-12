@@ -18,6 +18,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { Booking } from '../../../shared/models/booking.model';
 import { BookingService } from '../../../shared/services/booking.service';
 import { PackageService } from '../../../shared/services/package.service';
+import { Package } from '../../../shared/models/package.model';
 
 @Component({
   selector: 'app-booking-form',
@@ -42,6 +43,7 @@ export class BookingForm {
 
   readonly isEditing = signal(false);
   private editingBooking: Booking | null = null;
+  private selectedPackageId: number | null = null;
 
   readonly eventTypes = [
     { label: 'Wedding', value: 'Wedding' },
@@ -53,11 +55,13 @@ export class BookingForm {
     { label: 'Engagement', value: 'Engagement' },
   ];
 
-  readonly packageOptions = computed(() =>
-    this.packageService.packages()
+  readonly packageOptions = computed(() => {
+    const noneOption = { label: 'No Package (Custom)', value: '' };
+    const pkgs = this.packageService.packages()
       .filter(p => p.status === 'Active')
-      .map(p => ({ label: `${p.name} — ₹${p.packagePrice}`, value: p.name }))
-  );
+      .map(p => ({ label: `${p.name} — ₹${p.packagePrice}`, value: p.name }));
+    return [noneOption, ...pkgs];
+  });
 
   readonly form = this.fb.nonNullable.group({
     customer: ['', [Validators.required, Validators.minLength(2)]],
@@ -79,6 +83,7 @@ export class BookingForm {
       const booking = this.bookingService.bookings().find(b => b.id === +id);
       if (booking) {
         this.editingBooking = booking;
+        this.selectedPackageId = booking.packageId;
         this.isEditing.set(true);
         this.form.patchValue({
           customer: booking.customer,
@@ -93,10 +98,28 @@ export class BookingForm {
         });
       }
     }
+
+    // Pre-fill date from query param (calendar integration)
+    const dateParam = this.route.snapshot.queryParamMap.get('date');
+    if (dateParam && !this.isEditing()) {
+      this.form.patchValue({ eventDate: new Date(dateParam) });
+    }
   }
 
   get pageTitle(): string {
     return this.isEditing() ? 'Edit Booking' : 'New Booking';
+  }
+
+  onPackageChange(packageName: string): void {
+    if (!packageName) {
+      this.selectedPackageId = null;
+      return;
+    }
+    const pkg = this.packageService.packages().find(p => p.name === packageName);
+    if (pkg) {
+      this.selectedPackageId = pkg.id;
+      this.form.patchValue({ totalAmount: pkg.packagePrice });
+    }
   }
 
   onSubmit(): void {
@@ -120,6 +143,7 @@ export class BookingForm {
       location: raw.location,
       photographer: raw.photographer,
       package: raw.package,
+      packageId: this.selectedPackageId,
       totalAmount: raw.totalAmount,
       advancePaid: raw.advancePaid,
       deliveryDate: formatDate(raw.deliveryDate),
@@ -134,6 +158,7 @@ export class BookingForm {
     } else {
       this.bookingService.addBooking({
         ...formValue,
+        invoiceId: null,
         balance,
         notes: '',
         status: 'Pending',

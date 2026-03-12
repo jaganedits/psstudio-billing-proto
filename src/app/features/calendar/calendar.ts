@@ -100,6 +100,15 @@ export class CalendarView {
   }
 
   viewBooking(booking: Booking): void {
-    this.router.navigate(['/bookings/edit', booking.id]);
+    this.router.navigate(['/bookings', booking.id]);
+  }
+
+  addBookingOnDate(): void {
+    const sel = this.selectedDate();
+    if (sel) {
+      this.router.navigate(['/bookings/add'], { queryParams: { date: sel.toISOString() } });
+    } else {
+      this.router.navigate(['/bookings/add']);
+    }
   }
 }

@@ -59,11 +59,37 @@
         }
       </div>
     </div>
+    <!-- Calendar Legend -->
+    <div class="calendar-legend">
+      <div class="calendar-legend-item">
+        <span class="calendar-legend-dot" style="background: #4945ff"></span>
+        <span>Wedding</span>
+      </div>
+      <div class="calendar-legend-item">
+        <span class="calendar-legend-dot" style="background: #328048"></span>
+        <span>Baby Shoot</span>
+      </div>
+      <div class="calendar-legend-item">
+        <span class="calendar-legend-dot" style="background: #d9822f"></span>
+        <span>Birthday</span>
+      </div>
+      <div class="calendar-legend-item">
+        <span class="calendar-legend-dot" style="background: #8e4fd0"></span>
+        <span>Engagement</span>
+      </div>
+      <div class="calendar-legend-item">
+        <span class="calendar-legend-dot" style="background: #0c75af"></span>
+        <span>Pre-Wedding</span>
+      </div>
+    </div>
   </div>
 
   <div class="calendar-sidebar-panel">
     @if (selectedDate()) {
-      <h3 class="panel-date">{{ selectedDate()!.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) }}</h3>
+      <div class="panel-header">
+        <h3 class="panel-date">{{ selectedDate()!.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) }}</h3>
+        <p-button icon="pi pi-plus" label="New Booking" [outlined]="true" size="small" (onClick)="addBookingOnDate()" />
+      </div>
       @if (selectedDayBookings().length > 0) {
         @for (booking of selectedDayBookings(); track booking.id) {
           <div class="panel-event" (click)="viewBooking(booking)" role="button" tabindex="0" (keydown.enter)="viewBooking(booking)" [attr.aria-label]="'View booking for ' + booking.customer">

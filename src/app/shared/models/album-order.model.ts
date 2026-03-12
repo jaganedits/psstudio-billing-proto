@@ -1,5 +1,6 @@
 export interface AlbumOrder {
   id: number;
+  invoiceId: number;
   invoiceNumber: string;
   customer: string;
   phone: string;

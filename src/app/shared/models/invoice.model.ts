@@ -11,9 +11,11 @@ export interface Invoice {
   date: string;
   customer: string;
   phone: string;
+  bookingId: number | null;
   items: InvoiceItem[];
   subtotal: number;
   discount: number;
+  gstPercent: number;
   gst: number;
   total: number;
   paid: number;
